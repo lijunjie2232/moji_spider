@@ -103,107 +103,6 @@ class MojiDate(BaseModel):
     iso: datetime
 
 
-class UserSchema(BaseModel):
-    createdAt: Optional[Union[datetime, MojiDate]] = None
-    updatedAt: Optional[Union[datetime, MojiDate]] = None
-    gender: int
-    name: str
-    unionId: str
-    hasAvatar: bool
-    activityNum: int
-    followedFoldersNum: int
-    followedUsersNum: int
-    brief: str
-    imgVer_f: int
-    frontcoverPath: str
-    sharedFoldersNum: int
-    activityNumByOthers: int
-    fansNum: int
-    objectId: str
-
-
-class FolderSchema(BaseModel):
-    createdBy: str
-    isShared: bool
-    title: str
-    langEnv: str
-    hasCover: bool
-    type: int
-    rootFolderId: str
-    contentUpdatedAt: Optional[Dict[str, Any]] = None
-    itemsNum: int
-    totalWordsNum: int
-    wordsNum: int
-    viewedNum: int
-    attachments: List[Any]
-    brief: str
-    brief_rich: str
-    category: List[str]
-    imgVer: int
-    coverPath: str
-    price_mo: int
-    version: int
-    followedNum: int
-    objectId: str
-    updatedAt: str
-
-
-class WordTargetSchema(BaseModel):
-    excerpt: Optional[str] = None
-    spell: Optional[str] = None
-    accent: Optional[str] = None
-    pron: Optional[str] = None
-    romaji: Optional[str] = None
-    isFree: Optional[bool] = None
-    outSharedNum: Optional[int] = None
-    quality: Optional[int] = None
-    viewedNum: Optional[int] = None
-    exampleIds: Optional[List[str]] = None
-    isShared: Optional[bool] = None
-    status: Optional[str] = None
-    subdetailsIds: Optional[List[str]] = None
-    type: Optional[int] = None
-    romaji_hepburn: Optional[str] = None
-    romaji_hepburn_CN: Optional[str] = None
-    romaji_nippon: Optional[str] = None
-    romaji_nippon_CN: Optional[str] = None
-    createdAt: Optional[str] = None
-    updatedAt: Optional[str] = None
-    objectId: Optional[str] = None
-    createdBy: Optional[str] = None
-    updatedBy: Optional[str] = None
-    langEnv: Optional[str] = None
-    contentUpdatedAt: Optional[Dict[str, Any]] = None
-    vTag: Optional[int] = None
-    libIds: Optional[List[str]] = None
-    originalId: Optional[str] = None
-    originalSpell: Optional[str] = None
-    from_field: Optional[str] = Field(None, alias="from")
-    isChecked: Optional[bool] = None
-    reportedAt: Optional[Dict[str, Any]] = None
-    reportedNum: Optional[int] = None
-    checkedAt: Optional[Dict[str, Any]] = None
-
-
-class WordSchema(BaseModel):
-    createdAt: str
-    updatedAt: str
-    createdBy: str
-    title: str
-    updatedBy: str
-    targetType: int
-    targetId: str
-    parentFolderId: str
-    rootFolderId: str
-    targetUserId: str
-    targetIsShared: bool
-    appId: str
-    version: int
-    id: str
-    objectId: str
-    target: WordTargetSchema
-
-
 class SharedFolderSchema(BaseModel):
     """
     _id: required
@@ -432,6 +331,10 @@ class SentenceTarget(BaseModel):
     objectId: str
 
 
+class IgnoredTarget(BaseModel):
+    pass
+
+
 class ContentResult(BaseModel):
     createdAt: Optional[Union[datetime, MojiDate]] = None
     updatedAt: Optional[Union[datetime, MojiDate]] = None
@@ -447,7 +350,9 @@ class ContentResult(BaseModel):
     version: Optional[int] = None
     id: str
     objectId: str
-    target: Optional[Union[ContentTarget, CollectionTarget, SentenceTarget]]
+    target: Optional[
+        Union[ContentTarget, CollectionTarget, SentenceTarget, IgnoredTarget]
+    ]
 
     @model_validator(mode="before")
     @classmethod
@@ -461,6 +366,8 @@ class ContentResult(BaseModel):
             values["target"] = ContentTarget.model_validate(data)
         elif t == 103:
             values["target"] = SentenceTarget.model_validate(data)
+        elif t == 431:
+            values["target"] = IgnoredTarget.model_validate(data)
         else:
             raise ValueError("Invalid targetType")
 
