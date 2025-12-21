@@ -1,7 +1,9 @@
 # schemas.py
-from typing import List, Optional, Dict, Any, Union
-from pydantic import BaseModel, Field, model_validator
 from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field, model_validator
+
 from .configs import __CONFIG__
 
 

@@ -54,20 +54,20 @@ def test_folder_by_id():
     #     )
     #     print(object)
 
-    # # q6ip0foN4s
-    # with httpx.Client() as client:
-    #     response = client.post(
-    #         __ROUTES__.get("FOLDER_BY_ID", ""),
-    #         json=getattr(schemas, "FOLDER_BY_ID")(fid="q6ip0foN4s").model_dump(
-    #             by_alias=True
-    #         ),
-    #         headers=__HEADERS__,
-    #     )
-    #     object = schemas.FetchContentWithRelativesResponse.model_validate(
-    #         response.json(),
-    #         by_alias=True,
-    #     )
-    #     print(object)
+    # q6ip0foN4s
+    with httpx.Client() as client:
+        response = client.post(
+            __ROUTES__.get("FOLDER_BY_ID", ""),
+            json=getattr(schemas, "FOLDER_BY_ID")(fid="q6ip0foN4s").model_dump(
+                by_alias=True
+            ),
+            headers=__HEADERS__,
+        )
+        object = schemas.FetchContentWithRelativesResponse.model_validate(
+            response.json(),
+            by_alias=True,
+        )
+        print(object)
 
     # test official folder
     # 0EhuEs7G6E
@@ -83,6 +83,8 @@ def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
+        for item in object.result.result:
+            pass
         print(object)
 
 
@@ -110,7 +112,7 @@ if __name__ == "__main__":
     # tt = TimeTest.model_validate(data)
     # print(tt)
 
-    # exit(0)
-
     # test_folder_by_type()
-    test_folder_by_id()
+    # test_folder_by_id()
+
+    exit(0)

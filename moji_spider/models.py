@@ -1,17 +1,18 @@
 # models.py
+from datetime import datetime
+from typing import List, Optional, Union
+
 from tortoise import fields, models
 from tortoise.fields import (
-    DatetimeField,
-    IntField,
-    CharField,
     BooleanField,
-    TextField,
+    CharField,
+    DatetimeField,
     ForeignKeyField,
+    IntField,
     JSONField,
     ManyToManyField,
+    TextField,
 )
-from typing import Optional, List, Union
-from datetime import datetime
 
 
 class ContentTarget(models.Model):
