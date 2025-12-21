@@ -1,6 +1,6 @@
 # schemas.py
 from typing import List, Optional, Dict, Any, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from datetime import datetime
 from .configs import __CONFIG__
 
@@ -390,6 +390,48 @@ class ContentTarget(BaseModel):
     objectId: str
 
 
+class CollectionTarget(BaseModel):
+    createdAt: Optional[Union[datetime, MojiDate]] = None
+    updatedAt: Optional[Union[datetime, MojiDate]] = None
+    createdBy: Optional[str] = None
+    updatedBy: Optional[str] = None
+    isShared: Optional[bool] = None
+    isProduct: Optional[bool] = None
+    title: str
+    contentUpdatedAt: Optional[Union[datetime, MojiDate]] = None
+    viewedNum: Optional[int] = None
+    itemsNum: Optional[int] = None
+    followedNum: Optional[int] = None
+    hasCover: Optional[bool] = None
+    commentedNum: Optional[int] = None
+    wordsNum: Optional[int] = None
+    rootFolderId: Optional[str] = None
+    totalWordsNum: Optional[int] = None
+    category: Optional[List[str]] = None
+    version: Optional[int] = None
+    objectId: str
+
+    class Config:
+        allow_population_by_field_name = True
+
+
+class SentenceTarget(BaseModel):
+    wordId: str
+    subdetailsId: Optional[str]
+    title: str
+    lang: Optional[str]
+    index: Optional[int]
+    isShared: Optional[bool] = None
+    status: Optional[str] = None
+    createdBy: str
+    updatedAt: Optional[Union[datetime, MojiDate]] = None
+    updatedBy: Optional[str] = None
+    relaId: str
+    trans: Optional[str]
+    createdAt: Optional[Union[datetime, MojiDate]]
+    objectId: str
+
+
 class ContentResult(BaseModel):
     createdAt: Optional[Union[datetime, MojiDate]] = None
     updatedAt: Optional[Union[datetime, MojiDate]] = None
@@ -405,7 +447,24 @@ class ContentResult(BaseModel):
     version: Optional[int] = None
     id: str
     objectId: str
-    target: Optional[ContentTarget] = None
+    target: Optional[Union[ContentTarget, CollectionTarget, SentenceTarget]]
+
+    @model_validator(mode="before")
+    @classmethod
+    def parse_target(cls, values):
+        t = values.get("targetType")
+        data = values.get("target")
+
+        if t == 1000:
+            values["target"] = CollectionTarget.model_validate(data)
+        elif t in [102, 104]:
+            values["target"] = ContentTarget.model_validate(data)
+        elif t == 103:
+            values["target"] = SentenceTarget.model_validate(data)
+        else:
+            raise ValueError("Invalid targetType")
+
+        return values
 
 
 class FetchContentWithRelativesResult(BaseModel):
