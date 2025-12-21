@@ -9,7 +9,6 @@ __ROUTES__ = {
     "FOLDER_BY_TYPE": f"{__BASE_URL__}/parse/functions/fetchSharedFoldersWithType",
     # https://api.mojidict.com/parse/functions/folder-fetchContentWithRelatives
     # sortType: 0: default;
-    #
     "FOLDER_BY_ID": f"{__BASE_URL__}/parse/functions/folder-fetchContentWithRelatives",
 }
 
@@ -17,6 +16,6 @@ __ROUTES__ = {
 targetType:
     431: quizlet;
     1000: collection;
-    102: word;
-    
+    102: word or grammar;
+    103: sentence;
 """
