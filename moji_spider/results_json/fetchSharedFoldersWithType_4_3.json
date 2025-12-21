@@ -1,0 +1,228 @@
+{
+    "result": {
+        "1": [
+            {
+                "_auth_data_WeChatAuth": {
+                    "id": "a77e183830bff9d26278a07e4132f297a80cbb44c2530bd57de660820e9d2da2",
+                    "sessionKey": "39c60a624e65fb82a7feccc338bed3510e4071c4d7cc437fe0b422eb16d914e1023f77244d68b537e7dc3ce30d31b4e7e4a7b739ab2c17abbc92d4fa210325eaa14afebc6cc4c2b21a66cacab2d95145f28b4163187ff9bd92416c022eb227a5be2666a50d81f56589e1f08355aeb766"
+                },
+                "gender": 2,
+                "name": "鹿过",
+                "hasAvatar": true,
+                "activityNum": 558,
+                "unionId": "JP1306796",
+                "followedUsersNum": 2,
+                "fansNum": 0,
+                "_auth_data_MobileAuth": {
+                    "id": "a574551e89dad9d6e75ba6cb8ac489d6"
+                },
+                "imgVer_a": 2,
+                "_hashed_password": "$2y$10$0PHIIOwqh2h.CuDX4gjhrekAbDy.jMc63aKWFhBjgrxx/iRZjXs4i",
+                "email": "bonjourtingting@gmail.com",
+                "followedFoldersNum": 20,
+                "sharedFoldersNum": 1,
+                "_auth_data_WeChatOfficialAccountAuth": {
+                    "id": "eecf3667260be44123e863c86c97591587d04d67e81b22532517e1d53f2b8ea8",
+                    "sessionKey": "a6d3643eee6a6bab41d1c6c44bcece70d63299b28a9b6a2f407e507a846c6274d61fda6f593a01d0969cffabef968d76b3413d89b87f4397e4d23241e4816fa6a7f6e30996db093d0a90693f4655b2e882e70af8d6b75efd820d314969ff7de3f88a3dad9d75eec7d8ab7f1c94b04d108e25ce24c7c4a7a26d1ff7434978258098eb5e48f68ebb04ca883545b4366905"
+                },
+                "activityNumByOthers": 47,
+                "objectId": "8STg5iexfE",
+                "createdAt": "2023-11-07T12:09:38.045Z",
+                "updatedAt": "2025-12-07T08:16:42.263Z"
+            },
+            {
+                "unionId": "JP3652713",
+                "_auth_data_MobileAuth": {
+                    "id": "7f7332222170270f76f0cf0084ccafb3",
+                    "sessionKey": "467e70a4eacbbc3fce92b00630aa958c"
+                },
+                "name": "陈松的日常",
+                "hasAvatar": true,
+                "regSrcOS": "Android",
+                "_hashed_password": "$2a$10$.ceM1192n9kx9syrC/lo5u/GMyUL/r5CeMS9MoOFXjNynxMvYEAbC",
+                "_auth_data_WeChatAuth": {
+                    "id": "a775e5c02f05200db95683a5ce84f370b9f177ffbb38c5a91ce83b03bee40709"
+                },
+                "gender": 0,
+                "vTag": "1712645103880",
+                "imgVer_a": 2,
+                "followedFoldersNum": 4,
+                "activityNum": 210,
+                "email": "212088586@qq.com",
+                "activityNumByOthers": 6,
+                "sharedFoldersNum": 8,
+                "avatarPath": "avatar/BRx0cUSEWk_2",
+                "brief": "（同名公众号）",
+                "fansNum": 1,
+                "followedUsersNum": 0,
+                "objectId": "BRx0cUSEWk",
+                "createdAt": "2024-03-17T03:18:55.579Z",
+                "updatedAt": "2025-12-20T11:23:06.017Z"
+            },
+            {
+                "unionId": "JP3794418",
+                "name": "chancicing",
+                "hasAvatar": true,
+                "regSrcOS": "Android",
+                "_auth_data_WeChatAuth": {
+                    "id": "bc43d5b92eb65b7b4cce8a084a34ef0e4aa1e93e901c36f6e506bdcb06014fe3"
+                },
+                "gender": 1,
+                "_hashed_password": "$2a$10$ujfV6s25hoCXjBNN5StKiu.wH3cbwuAb58onZt/KFgF1yPGG9TV7G",
+                "vTag": "1724709601864",
+                "imgVer_a": 2,
+                "email": "2131354266@qq.com",
+                "activityNum": 1656,
+                "sharedFoldersNum": 3,
+                "followedFoldersNum": 10,
+                "activityNumByOthers": 49,
+                "brief": "Sb",
+                "imgVer_f": 1,
+                "frontcoverPath": "frontcover/RR0h8j9dj1_1",
+                "_auth_data_MobileAuth": {
+                    "id": "8aa1b75e6f378c48a5bca96ca596ed60"
+                },
+                "fansNum": 1,
+                "objectId": "RR0h8j9dj1",
+                "createdAt": "2024-05-25T13:53:47.468Z",
+                "updatedAt": "2025-12-17T12:11:13.678Z"
+            }
+        ],
+        "result": [
+            {
+                "_id": "x4q52FXkLB",
+                "createdBy": "BRx0cUSEWk",
+                "updatedBy": "BRx0cUSEWk",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "日本小学国语教材5",
+                "langEnv": "ja_zh-CN",
+                "hasCover": true,
+                "type": 2000,
+                "viewedNum": 247,
+                "rootFolderId": "x4q52FXkLB",
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-07-04T00:29:06.205Z"
+                },
+                "itemsNum": 86,
+                "totalWordsNum": 2228,
+                "wordsNum": 0,
+                "category": [
+                    "教材"
+                ],
+                "imgVer": 1,
+                "coverPath": "album/x4q52FXkLB_1",
+                "attachments": [],
+                "brief": "日本小学国语教材五年级  光村图书版",
+                "brief_rich": "<p>日本小学国语教材五年级&nbsp; 光村图书版</p>",
+                "price_mo": 300,
+                "version": 1,
+                "id": "x4q52FXkLB",
+                "objectId": "x4q52FXkLB",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2025-06-08T18:21:21.193Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-10-21T03:40:27.894Z"
+                }
+            },
+            {
+                "_id": "dceI1TGVR2",
+                "createdBy": "8STg5iexfE",
+                "updatedBy": "8STg5iexfE",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "考前王炸N1",
+                "langEnv": "ja_zh-CN",
+                "hasCover": true,
+                "type": 2003,
+                "rootFolderId": "dceI1TGVR2",
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-11-10T10:17:40.444Z"
+                },
+                "itemsNum": 479,
+                "totalWordsNum": 479,
+                "wordsNum": 479,
+                "viewedNum": 258,
+                "brief": "加油 努力 不放弃",
+                "brief_rich": "<p>加油 努力 不放弃</p>",
+                "category": [
+                    "考级"
+                ],
+                "imgVer": 1,
+                "coverPath": "album/dceI1TGVR2_1",
+                "price_mo": 0,
+                "version": 4,
+                "followedNum": 47,
+                "id": "dceI1TGVR2",
+                "objectId": "dceI1TGVR2",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2025-06-25T01:47:34.202Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-06T21:50:05.499Z"
+                }
+            },
+            {
+                "_id": "bGr2Yn3uwF",
+                "createdBy": "RR0h8j9dj1",
+                "updatedBy": "RR0h8j9dj1",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "片假名 地狱",
+                "brief": "考级真题出现过的片假名全汇集。喜欢千千",
+                "langEnv": "ja_zh-CN",
+                "hasCover": true,
+                "type": 2000,
+                "vTag": "1731218461950",
+                "imgVer": 1,
+                "viewedNum": 282,
+                "rootFolderId": "bGr2Yn3uwF",
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-10-27T12:35:20.417Z"
+                },
+                "itemsNum": 473,
+                "totalWordsNum": 473,
+                "wordsNum": 473,
+                "tags": [
+                    "N3",
+                    "N4",
+                    "N5",
+                    "JLPT能力考"
+                ],
+                "followedNum": 30,
+                "category": [
+                    "考级"
+                ],
+                "price_mo": 0,
+                "version": 7,
+                "attachments": [],
+                "brief_rich": "<p>考级真题出现过的片假名全汇集。喜欢千千</p>",
+                "id": "bGr2Yn3uwF",
+                "objectId": "bGr2Yn3uwF",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2024-11-10T06:00:35.863Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-12T00:23:27.791Z"
+                }
+            }
+        ],
+        "perPageCount": 3,
+        "pageIndex": 1,
+        "type": 4,
+        "code": 200
+    }
+}

@@ -1,0 +1,283 @@
+{
+    "result": {
+        "1": [
+            {
+                "email": "linc.dosth@gmail.com",
+                "_hashed_password": "$2y$10$kDuZv7U2L57u/8NKtadsxeafIHrwMtq38uxGL9sq6Objxnu4U2Jja",
+                "brief": "モジの編集者ですー よろしくね",
+                "name": "MOJiモジ！",
+                "activityNum": 14191,
+                "followedFoldersNum": 628,
+                "activityNumByOthers": 1448099,
+                "fansNum": 32490,
+                "followedUsersNum": 31,
+                "sharedFoldersNum": 1,
+                "gender": 2,
+                "hasAvatar": true,
+                "_auth_data_WeChatAuth": {
+                    "id": "e68e8ccade9bc6fd2b0725dc208dffd64d184a1f85a390fd3abdb67ab4cf709a",
+                    "sessionKey": "6cd934198bce795e856c2f74104b0e88dcf6a946a7668248ff68dd7a0abcc109c640cda42922bdb599c2ac5cd96954b87697502003f79f7d4c9f640fb772406684ea05ca7723d87427b584823856e2803984284cf155e1c55404ebec402b95ddd765939636385cc5ca13830a96d28885"
+                },
+                "_auth_data_MobileAuth": {
+                    "id": "f2476385ea4a41440a3b7ac3ea71d427"
+                },
+                "unionId": "JP39660",
+                "maxDeviceNum": 15,
+                "lastLoginAt": {
+                    "__type": "Date",
+                    "iso": "2024-03-15T09:51:41.408Z"
+                },
+                "isChecked": false,
+                "reportedAt": {
+                    "__type": "Date",
+                    "iso": "2025-05-07T16:48:04.721Z"
+                },
+                "reportedNum": 6,
+                "objectId": "9r8XOy1RcF",
+                "createdAt": "2018-12-18T02:24:15.740Z",
+                "updatedAt": "2025-12-21T04:54:25.132Z"
+            }
+        ],
+        "result": [
+            {
+                "_id": "hOIpPxXyxB",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "学習教材",
+                "viewedNum": 301150,
+                "brief": "收录主流日语教材",
+                "itemsNum": 16,
+                "followedNum": 16441,
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-09T07:47:46.935Z"
+                },
+                "hasCover": true,
+                "vTag": "1646616205864",
+                "commentedNum": 13,
+                "wordsNum": 0,
+                "rootFolderId": "hOIpPxXyxB",
+                "totalWordsNum": 115983,
+                "id": "hOIpPxXyxB",
+                "objectId": "hOIpPxXyxB",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:15:22.241Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-20T08:19:29.587Z"
+                }
+            },
+            {
+                "_id": "0EhuEs7G6E",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "行業用語",
+                "viewedNum": 90829,
+                "itemsNum": 14,
+                "brief": "收录经济、医疗、教育等行业日语",
+                "followedNum": 6286,
+                "hasCover": true,
+                "vTag": "1646210786438",
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2024-09-13T06:29:55.079Z"
+                },
+                "commentedNum": 2,
+                "wordsNum": 0,
+                "rootFolderId": "0EhuEs7G6E",
+                "totalWordsNum": 3154,
+                "id": "0EhuEs7G6E",
+                "objectId": "0EhuEs7G6E",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:18:15.048Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-20T16:36:43.649Z"
+                }
+            },
+            {
+                "_id": "XyrxsCKsM7",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "生活用語",
+                "viewedNum": 127819,
+                "itemsNum": 40,
+                "brief": "收录出行、天气、酒水、服饰、美妆等生活日语",
+                "followedNum": 12703,
+                "hasCover": true,
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-18T09:51:18.976Z"
+                },
+                "vTag": "1646705682170",
+                "commentedNum": 1,
+                "wordsNum": 0,
+                "rootFolderId": "XyrxsCKsM7",
+                "totalWordsNum": 1542,
+                "id": "XyrxsCKsM7",
+                "objectId": "XyrxsCKsM7",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:18:23.330Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-18T09:51:18.976Z"
+                }
+            },
+            {
+                "_id": "lRCAAwedSm",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "文化文藝",
+                "viewedNum": 58575,
+                "itemsNum": 14,
+                "brief": "收录诗词、名作、地名、年代等合集",
+                "followedNum": 6040,
+                "hasCover": true,
+                "vTag": "1646210886160",
+                "commentedNum": 0,
+                "wordsNum": 0,
+                "rootFolderId": "lRCAAwedSm",
+                "category": [
+                    "生活"
+                ],
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2024-10-24T11:00:29.721Z"
+                },
+                "version": 1,
+                "totalWordsNum": 45583,
+                "id": "lRCAAwedSm",
+                "objectId": "lRCAAwedSm",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:18:36.795Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-20T23:25:01.432Z"
+                }
+            },
+            {
+                "_id": "9BMsOY1ZH7",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "語言特性",
+                "viewedNum": 65745,
+                "itemsNum": 29,
+                "brief": "收录惯用语、副词、动词、片假名等合集",
+                "followedNum": 5974,
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2024-09-19T03:43:01.418Z"
+                },
+                "hasCover": true,
+                "vTag": "1646210825789",
+                "commentedNum": 0,
+                "wordsNum": 0,
+                "rootFolderId": "9BMsOY1ZH7",
+                "totalWordsNum": 56948,
+                "id": "9BMsOY1ZH7",
+                "objectId": "9BMsOY1ZH7",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:18:47.662Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-21T04:28:07.029Z"
+                }
+            },
+            {
+                "_id": "TB1PejsD4r",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "影視娯楽",
+                "viewedNum": 56868,
+                "itemsNum": 18,
+                "brief": "收录纪录片、综艺、广播、音乐等日语资源\n",
+                "followedNum": 4680,
+                "hasCover": true,
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-05-14T01:19:36.531Z"
+                },
+                "vTag": "1646210836765",
+                "commentedNum": 0,
+                "wordsNum": 0,
+                "rootFolderId": "TB1PejsD4r",
+                "totalWordsNum": 150,
+                "id": "TB1PejsD4r",
+                "objectId": "TB1PejsD4r",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:19:27.396Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-11-23T00:35:05.353Z"
+                }
+            },
+            {
+                "_id": "CkuAvtQX6a",
+                "createdBy": "9r8XOy1RcF",
+                "updatedBy": "9r8XOy1RcF",
+                "isTrash": false,
+                "isShared": true,
+                "isProduct": false,
+                "title": "其他",
+                "viewedNum": 63775,
+                "itemsNum": 15,
+                "brief": "收录MOJi小编各合集",
+                "followedNum": 3050,
+                "hasCover": true,
+                "contentUpdatedAt": {
+                    "__type": "Date",
+                    "iso": "2024-09-20T03:02:40.217Z"
+                },
+                "vTag": "1646210846398",
+                "commentedNum": 1,
+                "wordsNum": 0,
+                "rootFolderId": "CkuAvtQX6a",
+                "totalWordsNum": 43821,
+                "id": "CkuAvtQX6a",
+                "objectId": "CkuAvtQX6a",
+                "createdAt": {
+                    "__type": "Date",
+                    "iso": "2020-10-27T06:19:46.153Z"
+                },
+                "updatedAt": {
+                    "__type": "Date",
+                    "iso": "2025-12-03T22:48:35.916Z"
+                }
+            }
+        ],
+        "perPageCount": 3000,
+        "pageIndex": 1,
+        "type": 1,
+        "code": 200
+    }
+}
