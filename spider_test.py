@@ -1,8 +1,40 @@
 import httpx
 
+# test connection
+from tortoise import Tortoise, run_async
+
+
+async def init():
+    await Tortoise.init(
+        db_url="mysql://moji:moji@127.0.0.1:13306/moji_test",
+        modules={"models": ["moji_spider.models"]},
+    )
+    await Tortoise.generate_schemas()
+
+
+run_async(init())
+
 from moji_spider import schemas
 from moji_spider.configs import __HEADERS__
 from moji_spider.routes import __ROUTES__
+from moji_spider.models import (
+    ContentResult as ContentResultModel,
+    CollectionTarget as CollectionTargetModel,
+    ContentTarget as ContentTargetModel,
+    SentenceTarget as SentenceTargetModel,
+)
+from moji_spider.schemas import (
+    ContentResult as ContentResultSchema,
+    ContentTarget as ContentTargetSchema,
+    CollectionTarget as CollectionTargetSchema,
+    SentenceTarget as SentenceTargetSchema,
+)
+
+SCHEMA_MODEL_MAP = {
+    "ContentTarget": (ContentTargetModel, "content_targets"),
+    "CollectionTarget": (CollectionTargetModel, "collection_targets"),
+    "SentenceTarget": (SentenceTargetModel, "sentence_targets"),
+}
 
 
 def test_folder_by_type():
@@ -38,21 +70,29 @@ def test_folder_by_type():
 
 
 def test_folder_by_id():
-    # # test FOLDER_BY_ID
-    # # gjdWQCjLGX
-    # with httpx.Client() as client:
-    #     response = client.post(
-    #         __ROUTES__.get("FOLDER_BY_ID", ""),
-    #         json=getattr(schemas, "FOLDER_BY_ID")(fid="gjdWQCjLGX").model_dump(
-    #             by_alias=True
-    #         ),
-    #         headers=__HEADERS__,
-    #     )
-    #     object = schemas.FetchContentWithRelativesResponse.model_validate(
-    #         response.json(),
-    #         by_alias=True,
-    #     )
-    #     print(object)
+    # test FOLDER_BY_ID
+    # gjdWQCjLGX
+    with httpx.Client() as client:
+        response = client.post(
+            __ROUTES__.get("FOLDER_BY_ID", ""),
+            json=getattr(schemas, "FOLDER_BY_ID")(fid="gjdWQCjLGX").model_dump(
+                by_alias=True
+            ),
+            headers=__HEADERS__,
+        )
+        object = schemas.FetchContentWithRelativesResponse.model_validate(
+            response.json(),
+            by_alias=True,
+        )
+        for item in object.result.result:
+            model = ContentResultModel(**item.model_dump())
+            target_cls, target_col = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
+            target = target_cls(**item.target.model_dump())
+            run_async(target.save())
+            setattr(model, target_col, target)
+            run_async(model.save())
+            pass
+        # print(object)
 
     # q6ip0foN4s
     with httpx.Client() as client:
@@ -67,7 +107,9 @@ def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
-        print(object)
+        for item in object.result.result:
+            pass
+        # print(object)
 
     # test official folder
     # 0EhuEs7G6E
@@ -85,7 +127,6 @@ def test_folder_by_id():
         )
         for item in object.result.result:
             pass
-        print(object)
 
 
 if __name__ == "__main__":
@@ -113,6 +154,6 @@ if __name__ == "__main__":
     # print(tt)
 
     # test_folder_by_type()
-    # test_folder_by_id()
+    test_folder_by_id()
 
     exit(0)

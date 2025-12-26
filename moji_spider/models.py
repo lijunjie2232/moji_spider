@@ -1,8 +1,8 @@
 # models.py
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional, Reversible, Union
 
-from tortoise import fields, models
+from tortoise import fields, Model
 from tortoise.fields import (
     BooleanField,
     CharField,
@@ -12,15 +12,15 @@ from tortoise.fields import (
     JSONField,
     ManyToManyField,
     TextField,
+    ReverseRelation,
 )
 
 
-class ContentTarget(models.Model):
+class ContentTarget(Model):
     """
     Model representing a content target with various linguistic information.
     """
 
-    id = fields.IntField(pk=True)
     excerpt = TextField(null=True)
     spell = CharField(max_length=255, null=True)
     accent = CharField(max_length=255, null=True)
@@ -47,25 +47,20 @@ class ContentTarget(models.Model):
     romaji_nippon_cn = CharField(max_length=255, null=True)
     created_at = DatetimeField(null=True)
     updated_at = DatetimeField(null=True)
-    object_id = CharField(max_length=255)
+    object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
-    content_results = ManyToManyField(
-        "models.ContentResult",
-        related_name="content_targets",
-        through="contentresult_contenttarget",
-    )
+    content_results = ReverseRelation["ContentResult"]
 
     class Meta:
         table = "content_target"
 
 
-class CollectionTarget(models.Model):
+class CollectionTarget(Model):
     """
     Model representing a collection target with metadata about collections.
     """
 
-    id = fields.IntField(pk=True)
     created_at = DatetimeField(null=True)
     updated_at = DatetimeField(null=True)
     created_by = CharField(max_length=255, null=True)
@@ -84,25 +79,20 @@ class CollectionTarget(models.Model):
     total_words_num = IntField(null=True)
     category = JSONField(null=True)
     version = IntField(null=True)
-    object_id = CharField(max_length=255)
+    object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
-    content_results = ManyToManyField(
-        "models.ContentResult",
-        related_name="collection_targets",
-        through="contentresult_collectiontarget",
-    )
+    content_results = ReverseRelation["ContentResult"]
 
     class Meta:
         table = "collection_target"
 
 
-class SentenceTarget(models.Model):
+class SentenceTarget(Model):
     """
     Model representing a sentence target with word and sentence details.
     """
 
-    id = fields.IntField(pk=True)
     word_id = CharField(max_length=255)
     subdetails_id = CharField(max_length=255, null=True)
     title = TextField()
@@ -116,26 +106,21 @@ class SentenceTarget(models.Model):
     rela_id = CharField(max_length=255)
     trans = TextField(null=True)
     created_at = DatetimeField(null=True)
-    object_id = CharField(max_length=255)
+    object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
-    content_results = ManyToManyField(
-        "models.ContentResult",
-        related_name="sentence_targets",
-        through="contentresult_sentencetarget",
-    )
+    content_results = ReverseRelation["ContentResult"]
 
     class Meta:
         table = "sentence_target"
 
 
-class ContentResult(models.Model):
+class ContentResult(Model):
     """
     Model representing a content result that can be associated with multiple targets.
     One ContentResult can have many targets of different types.
     """
 
-    id = fields.IntField(pk=True)
     created_at = DatetimeField(null=True)
     updated_at = DatetimeField(null=True)
     created_by = CharField(max_length=255)
@@ -148,7 +133,7 @@ class ContentResult(models.Model):
     target_user_id = CharField(max_length=255, null=True)
     app_id = CharField(max_length=255, null=True)
     version = IntField(null=True)
-    object_id = CharField(max_length=255)
+    object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationships to targets
     content_targets = ManyToManyField(
@@ -172,53 +157,53 @@ class ContentResult(models.Model):
 
 
 # Junction tables for many-to-many relationships
-class ContentResultContentTarget(models.Model):
-    """
-    Junction table for many-to-many relationship between ContentResult and ContentTarget
-    """
+# class ContentResultContentTarget(Model):
+#     """
+#     Junction table for many-to-many relationship between ContentResult and ContentTarget
+#     """
 
-    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
-    content_target = ForeignKeyField("models.ContentTarget", on_delete=fields.CASCADE)
+#     content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+#     content_target = ForeignKeyField("models.ContentTarget", on_delete=fields.CASCADE)
 
-    class Meta:
-        table = "contentresult_contenttarget"
-
-
-class ContentResultCollectionTarget(models.Model):
-    """
-    Junction table for many-to-many relationship between ContentResult and CollectionTarget
-    """
-
-    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
-    collection_target = ForeignKeyField(
-        "models.CollectionTarget", on_delete=fields.CASCADE
-    )
-
-    class Meta:
-        table = "contentresult_collectiontarget"
+#     class Meta:
+#         table = "contentresult_contenttarget"
 
 
-class ContentResultSentenceTarget(models.Model):
-    """
-    Junction table for many-to-many relationship between ContentResult and SentenceTarget
-    """
+# class ContentResultCollectionTarget(Model):
+#     """
+#     Junction table for many-to-many relationship between ContentResult and CollectionTarget
+#     """
 
-    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
-    sentence_target = ForeignKeyField("models.SentenceTarget", on_delete=fields.CASCADE)
+#     content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+#     collection_target = ForeignKeyField(
+#         "models.CollectionTarget", on_delete=fields.CASCADE
+#     )
 
-    class Meta:
-        table = "contentresult_sentencetarget"
+#     class Meta:
+#         table = "contentresult_collectiontarget"
+
+
+# class ContentResultSentenceTarget(Model):
+#     """
+#     Junction table for many-to-many relationship between ContentResult and SentenceTarget
+#     """
+
+#     content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+#     sentence_target = ForeignKeyField("models.SentenceTarget", on_delete=fields.CASCADE)
+
+#     class Meta:
+#         table = "contentresult_sentencetarget"
 
 
 if __name__ == "__main__":
     # test connection
-    from configs import __TORTOISE_ORM__
+    from moji_spider.configs import __TORTOISE_ORM__
     from tortoise import Tortoise, run_async
 
     async def init():
         await Tortoise.init(
-            db_url="mysql://moji:moji@localhost:13306/moji_test",
-            modules={"models": ["models"]},
+            db_url="mysql://moji:moji@127.0.0.1:13306/moji_test",
+            modules={"models": ["moji_spider.models"]},
         )
         await Tortoise.generate_schemas()
 

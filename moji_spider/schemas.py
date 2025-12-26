@@ -363,13 +363,13 @@ class ContentResult(BaseModel):
         data = values.get("target")
 
         if t == 1000:
-            values["target"] = CollectionTarget.model_validate(data)
+            values["target"] = CollectionTarget.model_validate(data, by_alias=True)
         elif t in [102, 104]:
-            values["target"] = ContentTarget.model_validate(data)
+            values["target"] = ContentTarget.model_validate(data, by_alias=True)
         elif t == 103:
-            values["target"] = SentenceTarget.model_validate(data)
+            values["target"] = SentenceTarget.model_validate(data, by_alias=True)
         elif t == 431:
-            values["target"] = IgnoredTarget.model_validate(data)
+            values["target"] = IgnoredTarget.model_validate(data, by_alias=True)
         else:
             raise ValueError("Invalid targetType")
 
