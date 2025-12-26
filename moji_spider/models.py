@@ -12,7 +12,7 @@ from tortoise.fields import (
     JSONField,
     ManyToManyField,
     TextField,
-    ReverseRelation,
+    ManyToManyRelation,
 )
 
 
@@ -50,7 +50,7 @@ class ContentTarget(Model):
     object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
-    content_results = ReverseRelation["ContentResult"]
+    content_results = ManyToManyRelation["ContentResult"]
 
     class Meta:
         table = "content_target"
@@ -82,7 +82,7 @@ class CollectionTarget(Model):
     object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
-    content_results = ReverseRelation["ContentResult"]
+    content_results = ManyToManyRelation["ContentResult"]
 
     class Meta:
         table = "collection_target"
@@ -109,7 +109,7 @@ class SentenceTarget(Model):
     object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
-    content_results = ReverseRelation["ContentResult"]
+    content_results = ManyToManyRelation["ContentResult"]
 
     class Meta:
         table = "sentence_target"
@@ -121,6 +121,7 @@ class ContentResult(Model):
     One ContentResult can have many targets of different types.
     """
 
+    id = CharField(max_length=255, pk=True)
     created_at = DatetimeField(null=True)
     updated_at = DatetimeField(null=True)
     created_by = CharField(max_length=255)
@@ -133,7 +134,7 @@ class ContentResult(Model):
     target_user_id = CharField(max_length=255, null=True)
     app_id = CharField(max_length=255, null=True)
     version = IntField(null=True)
-    object_id = CharField(max_length=255, pk=True)
+    object_id = CharField(max_length=255)
 
     # Many-to-many relationships to targets
     content_targets = ManyToManyField(
