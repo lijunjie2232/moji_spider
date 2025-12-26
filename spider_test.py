@@ -1,4 +1,6 @@
+from calendar import c
 import httpx
+from tqdm import tqdm
 
 # test connection
 from tortoise import Tortoise, run_async
@@ -69,7 +71,7 @@ def test_folder_by_type():
         print(object)
 
 
-def test_folder_by_id():
+async def test_folder_by_id():
     # test FOLDER_BY_ID
     # gjdWQCjLGX
     with httpx.Client() as client:
@@ -84,13 +86,19 @@ def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
-        for item in object.result.result:
-            model = ContentResultModel(**item.model_dump())
+        for item in tqdm(object.result.result):
             target_cls, target_col = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
-            target = target_cls(**item.target.model_dump())
-            run_async(target.save())
-            setattr(model, target_col, target)
-            run_async(model.save())
+            # target = target_cls(**item.target.model_dump())
+            # run_async(target.save())
+            target, created = await target_cls.get_or_create(
+                **item.target.model_dump(),
+            )
+            # model = ContentResultModel(**item.model_dump())
+            model, created = await ContentResultModel.get_or_create(
+                **item.model_dump(exclude={"target"}),
+            )
+            print(f"model created: {created}")
+            await getattr(model, target_col).add(target)
             pass
         # print(object)
 
@@ -107,9 +115,9 @@ def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
-        for item in object.result.result:
-            pass
-        # print(object)
+        # for item in object.result.result:
+        #     pass
+        print(object)
 
     # test official folder
     # 0EhuEs7G6E
@@ -125,8 +133,10 @@ def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
-        for item in object.result.result:
-            pass
+        # for item in object.result.result:
+        #     pass
+
+        print(object)
 
 
 if __name__ == "__main__":
@@ -154,6 +164,6 @@ if __name__ == "__main__":
     # print(tt)
 
     # test_folder_by_type()
-    test_folder_by_id()
+    run_async(test_folder_by_id())
 
     exit(0)
