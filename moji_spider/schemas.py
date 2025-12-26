@@ -96,6 +96,11 @@ class FOLDER_BY_ID(BaseModel):
     )
 
 
+from datetime import datetime
+from typing import Any
+from pydantic import BaseModel, Field
+
+
 class MojiDate(BaseModel):
     # {
     #     "__type": "Date",
@@ -103,6 +108,31 @@ class MojiDate(BaseModel):
     # },
     type: str = Field(..., alias="__type")
     iso: datetime
+
+    def model_dump(self, *args, **kwargs):
+        """Override model_dump to return the datetime directly"""
+        # If we want to return just the datetime when dumping
+        if kwargs.pop("mojidate2datetime", True):
+            return self.iso
+        return super().model_dump(*args, **kwargs)
+
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        """Custom schema to handle datetime conversion"""
+        from pydantic_core import core_schema
+
+        return core_schema.no_info_after_validator_function(
+            cls._convert_to_datetime, handler(source_type)
+        )
+
+    @classmethod
+    def _convert_to_datetime(cls, v):
+        """Convert the MojiDate to datetime if needed"""
+        if isinstance(v, cls):
+            return v.iso
+        elif isinstance(v, dict) and "__type" in v and "iso" in v:
+            return datetime.fromisoformat(v["iso"].replace("Z", "+00:00"))
+        return v
 
 
 class SharedFolderSchema(BaseModel):
@@ -262,75 +292,79 @@ class FetchOfficialFoldersResponse(BaseModel):
 
 
 class ContentTarget(BaseModel):
-    excerpt: Optional[str] = None
-    spell: Optional[str] = None
-    accent: Optional[str] = None
-    pron: Optional[str] = None
-    romaji: Optional[str] = None
-    reportedNum: Optional[int] = None
-    outSharedNum: Optional[int] = None
-    isFree: Optional[bool] = None
-    isChecked: Optional[bool] = None
-    contentUpdatedAt: Optional[Union[datetime, MojiDate]] = None
-    updatedBy: Optional[str] = None
-    vTag: Optional[int] = None
-    quality: Optional[int] = None
-    tags: Optional[str] = None
-    viewedNum: Optional[int] = None
-    exampleIds: Optional[List[str]] = None
-    isShared: Optional[bool] = None
-    status: Optional[str] = None
-    subdetailsIds: Optional[List[str]] = None
-    type: Optional[int] = None
-    romaji_hepburn: Optional[str] = None
-    romaji_hepburn_CN: Optional[str] = None
-    romaji_nippon: Optional[str] = None
-    romaji_nippon_CN: Optional[str] = None
-    createdAt: Optional[Union[datetime, MojiDate]]
-    updatedAt: Optional[Union[datetime, MojiDate]]
-    objectId: str
+    excerpt: Optional[str] = Field(None, alias="excerpt")
+    spell: Optional[str] = Field(None, alias="spell")
+    accent: Optional[str] = Field(None, alias="accent")
+    pron: Optional[str] = Field(None, alias="pron")
+    romaji: Optional[str] = Field(None, alias="romaji")
+    reported_num: Optional[int] = Field(None, alias="reportedNum")
+    out_shared_num: Optional[int] = Field(None, alias="outSharedNum")
+    is_free: Optional[bool] = Field(None, alias="isFree")
+    is_checked: Optional[bool] = Field(None, alias="isChecked")
+    content_updated_at: Optional[Union[datetime, MojiDate]] = Field(
+        None, alias="contentUpdatedAt"
+    )
+    updated_by: Optional[str] = Field(None, alias="updatedBy")
+    v_tag: Optional[int] = Field(None, alias="vTag")
+    quality: Optional[int] = Field(None, alias="quality")
+    tags: Optional[str] = Field(None, alias="tags")
+    viewed_num: Optional[int] = Field(None, alias="viewedNum")
+    example_ids: Optional[List[str]] = Field(None, alias="exampleIds")
+    is_shared: Optional[bool] = Field(None, alias="isShared")
+    status: Optional[str] = Field(None, alias="status")
+    subdetails_ids: Optional[List[str]] = Field(None, alias="subdetailsIds")
+    type: Optional[int] = Field(None, alias="type")
+    romaji_hepburn: Optional[str] = Field(None, alias="romaji_hepburn")
+    romaji_hepburn_cn: Optional[str] = Field(None, alias="romaji_hepburn_CN")
+    romaji_nippon: Optional[str] = Field(None, alias="romaji_nippon")
+    romaji_nippon_cn: Optional[str] = Field(None, alias="romaji_nippon_CN")
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    object_id: str = Field(..., alias="objectId")
 
 
 class CollectionTarget(BaseModel):
-    createdAt: Optional[Union[datetime, MojiDate]] = None
-    updatedAt: Optional[Union[datetime, MojiDate]] = None
-    createdBy: Optional[str] = None
-    updatedBy: Optional[str] = None
-    isShared: Optional[bool] = None
-    isProduct: Optional[bool] = None
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    created_by: Optional[str] = Field(None, alias="createdBy")
+    updated_by: Optional[str] = Field(None, alias="updatedBy")
+    is_shared: Optional[bool] = Field(None, alias="isShared")
+    is_product: Optional[bool] = Field(None, alias="isProduct")
     title: str
-    contentUpdatedAt: Optional[Union[datetime, MojiDate]] = None
-    viewedNum: Optional[int] = None
-    itemsNum: Optional[int] = None
-    followedNum: Optional[int] = None
-    hasCover: Optional[bool] = None
-    commentedNum: Optional[int] = None
-    wordsNum: Optional[int] = None
-    rootFolderId: Optional[str] = None
-    totalWordsNum: Optional[int] = None
-    category: Optional[List[str]] = None
-    version: Optional[int] = None
-    objectId: str
+    content_updated_at: Optional[Union[datetime, MojiDate]] = Field(
+        None, alias="contentUpdatedAt"
+    )
+    viewed_num: Optional[int] = Field(None, alias="viewedNum")
+    items_num: Optional[int] = Field(None, alias="itemsNum")
+    followed_num: Optional[int] = Field(None, alias="followedNum")
+    has_cover: Optional[bool] = Field(None, alias="hasCover")
+    commented_num: Optional[int] = Field(None, alias="commentedNum")
+    words_num: Optional[int] = Field(None, alias="wordsNum")
+    root_folder_id: Optional[str] = Field(None, alias="rootFolderId")
+    total_words_num: Optional[int] = Field(None, alias="totalWordsNum")
+    category: Optional[List[str]] = Field(None, alias="category")
+    version: Optional[int] = Field(None, alias="version")
+    object_id: str = Field(..., alias="objectId")
 
     class Config:
         allow_population_by_field_name = True
 
 
 class SentenceTarget(BaseModel):
-    wordId: str
-    subdetailsId: Optional[str]
+    word_id: str = Field(..., alias="wordId")
+    subdetails_id: Optional[str] = Field(None, alias="subdetailsId")
     title: str
-    lang: Optional[str]
-    index: Optional[int]
-    isShared: Optional[bool] = None
-    status: Optional[str] = None
-    createdBy: str
-    updatedAt: Optional[Union[datetime, MojiDate]] = None
-    updatedBy: Optional[str] = None
-    relaId: str
-    trans: Optional[str]
-    createdAt: Optional[Union[datetime, MojiDate]]
-    objectId: str
+    lang: Optional[str] = Field(None, alias="lang")
+    index: Optional[int] = Field(None, alias="index")
+    is_shared: Optional[bool] = Field(None, alias="isShared")
+    status: Optional[str] = Field(None, alias="status")
+    created_by: str = Field(..., alias="createdBy")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    updated_by: Optional[str] = Field(None, alias="updatedBy")
+    rela_id: str = Field(..., alias="relaId")
+    trans: Optional[str] = Field(None, alias="trans")
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    object_id: str = Field(..., alias="objectId")
 
 
 class IgnoredTarget(BaseModel):
@@ -338,20 +372,20 @@ class IgnoredTarget(BaseModel):
 
 
 class ContentResult(BaseModel):
-    createdAt: Optional[Union[datetime, MojiDate]] = None
-    updatedAt: Optional[Union[datetime, MojiDate]] = None
-    createdBy: str
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    created_by: str = Field(..., alias="createdBy")
     title: str
-    updatedBy: Optional[str] = None
-    targetType: int
-    targetId: str
-    parentFolderId: Optional[str] = None
-    rootFolderId: Optional[str] = None
-    targetUserId: Optional[str] = None
-    appId: Optional[str] = None
-    version: Optional[int] = None
+    updated_by: Optional[str] = Field(None, alias="updatedBy")
+    target_type: int = Field(..., alias="targetType")
+    target_id: str = Field(..., alias="targetId")
+    parent_folder_id: Optional[str] = Field(None, alias="parentFolderId")
+    root_folder_id: Optional[str] = Field(None, alias="rootFolderId")
+    target_user_id: Optional[str] = Field(None, alias="targetUserId")
+    app_id: Optional[str] = Field(None, alias="appId")
+    version: Optional[int] = Field(None, alias="version")
     id: str
-    objectId: str
+    object_id: str = Field(..., alias="objectId")
     target: Optional[
         Union[ContentTarget, CollectionTarget, SentenceTarget, IgnoredTarget]
     ]
