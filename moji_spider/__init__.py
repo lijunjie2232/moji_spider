@@ -1,9 +1,10 @@
-from . import schemas
-from .configs import __CONFIG__, __HEADERS__, __TORTOISE_ORM__
+from . import db, models, schemas
+from .configs import __CONFIG__, __HEADERS__
 
 __ALL__ = [
     "__HEADERS__",
     "__CONFIG__",
-    "__TORTOISE_ORM__",
     "schemas",
+    "models",
+    "db",
 ]

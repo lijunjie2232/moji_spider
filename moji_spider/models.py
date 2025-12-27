@@ -1,5 +1,6 @@
 # models.py
 from datetime import datetime
+from enum import unique
 from typing import List, Optional, Reversible, Union
 
 from tortoise import Model, fields
@@ -246,16 +247,19 @@ class ContentResult(Model):
         "models.ContentTarget",
         related_name="content_results",
         through="contentresult_contenttarget",
+        on_delete=fields.CASCADE,
     )
     collection_targets = ManyToManyField(
         "models.CollectionTarget",
         related_name="content_results",
         through="contentresult_collectiontarget",
+        on_delete=fields.CASCADE,
     )
     sentence_targets = ManyToManyField(
         "models.SentenceTarget",
         related_name="content_results",
         through="contentresult_sentencetarget",
+        on_delete=fields.CASCADE,
     )
 
     class Meta:
@@ -263,55 +267,40 @@ class ContentResult(Model):
 
 
 # Junction tables for many-to-many relationships
-# class ContentResultContentTarget(Model):
-#     """
-#     Junction table for many-to-many relationship between ContentResult and ContentTarget
-#     """
+class ContentResultContentTarget(Model):
+    """
+    Junction table for many-to-many relationship between ContentResult and ContentTarget
+    """
 
-#     content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
-#     content_target = ForeignKeyField("models.ContentTarget", on_delete=fields.CASCADE)
+    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+    target = ForeignKeyField("models.ContentTarget", on_delete=fields.CASCADE)
 
-#     class Meta:
-#         table = "contentresult_contenttarget"
-
-
-# class ContentResultCollectionTarget(Model):
-#     """
-#     Junction table for many-to-many relationship between ContentResult and CollectionTarget
-#     """
-
-#     content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
-#     collection_target = ForeignKeyField(
-#         "models.CollectionTarget", on_delete=fields.CASCADE
-#     )
-
-#     class Meta:
-#         table = "contentresult_collectiontarget"
+    class Meta:
+        table = "contentresult_contenttarget"
+        unique_together = (("content_result", "target"),)
 
 
-# class ContentResultSentenceTarget(Model):
-#     """
-#     Junction table for many-to-many relationship between ContentResult and SentenceTarget
-#     """
+class ContentResultCollectionTarget(Model):
+    """
+    Junction table for many-to-many relationship between ContentResult and CollectionTarget
+    """
 
-#     content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
-#     sentence_target = ForeignKeyField("models.SentenceTarget", on_delete=fields.CASCADE)
+    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+    target = ForeignKeyField("models.CollectionTarget", on_delete=fields.CASCADE)
 
-#     class Meta:
-#         table = "contentresult_sentencetarget"
+    class Meta:
+        table = "contentresult_collectiontarget"
+        unique_together = (("content_result", "target"),)
 
 
-if __name__ == "__main__":
-    # test connection
-    from tortoise import Tortoise, run_async
+class ContentResultSentenceTarget(Model):
+    """
+    Junction table for many-to-many relationship between ContentResult and SentenceTarget
+    """
 
-    from moji_spider.configs import __TORTOISE_ORM__
+    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+    target = ForeignKeyField("models.SentenceTarget", on_delete=fields.CASCADE)
 
-    async def init():
-        await Tortoise.init(
-            db_url="mysql://moji:moji@127.0.0.1:13306/moji_test",
-            modules={"models": ["moji_spider.models"]},
-        )
-        await Tortoise.generate_schemas()
-
-    run_async(init())
+    class Meta:
+        table = "contentresult_sentencetarget"
+        unique_together = (("content_result", "target"),)

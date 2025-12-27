@@ -23,23 +23,4 @@ __HEADERS__ = {
 }
 
 # configure tortoise-orm here (omitted for brevity)
-__TORTOISE_ORM__ = {
-    "connections": {
-        "default": {
-            "engine": "tortoise.backends.mysql",
-            "credentials": {
-                "host": "127.0.0.1",
-                "port": "13306",
-                "user": "moji",
-                "password": "moji",
-                "database": "moji_test",
-            },
-        },
-    },
-    "apps": {
-        "models": {
-            "models": ["aerich.models", "moji_spider.models"],
-            "default_connection": "default",
-        },
-    },
-}
+__SQL_ADDRESS__ = "mysql://moji:moji@127.0.0.1:13306/moji_test"
