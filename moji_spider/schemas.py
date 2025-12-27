@@ -98,6 +98,7 @@ class FOLDER_BY_ID(BaseModel):
 
 from datetime import datetime
 from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -136,79 +137,43 @@ class MojiDate(BaseModel):
 
 
 class SharedFolderSchema(BaseModel):
-    """
-    _id: required
-    createdBy: required
-    updatedBy: required
-    isTrash: required
-    isShared: required
-    isProduct: optional
-    title: required
-    langEnv: optional
-    hasCover: required
-    type: optional
-    viewedNum: required
-    rootFolderId: required
-    contentUpdatedAt: required
-    itemsNum: required
-    totalWordsNum: required
-    wordsNum: required
-    category: optional
-    imgVer: optional
-    coverPath: optional
-    attachments: optional
-    brief: optional
-    brief_rich: optional
-    price_mo: optional
-    version: required
-    id: required
-    objectId: required
-    createdAt: required
-    updatedAt: required
-    followedNum: optional
-    vTag: optional
-    tags: optional
-    sortType: optional
-    commentedNum: optional
-    sampleId: optional
-    baseSortType: optional
-    """
-
     id: str = Field(..., alias="_id")
-    createdBy: str
-    updatedBy: str
-    isTrash: bool
-    isShared: bool
-    isProduct: Optional[bool] = None
-    title: str
-    langEnv: Optional[str] = None
-    hasCover: bool
-    type: Optional[int] = None
-    viewedNum: int
-    rootFolderId: str
-    contentUpdatedAt: Optional[Union[datetime, MojiDate]] = None
-    itemsNum: int
-    totalWordsNum: int
-    wordsNum: int
-    category: Optional[List[str]] = None
-    imgVer: Optional[int] = None
-    coverPath: Optional[str] = None
-    attachments: Optional[List[Any]] = None
-    brief: Optional[str] = None
-    brief_rich: Optional[str] = None
-    price_mo: Optional[int] = None
-    version: int
+    created_by: str = Field(..., alias="createdBy")
+    updated_by: str = Field(..., alias="updatedBy")
+    is_trash: bool = Field(..., alias="isTrash")
+    is_shared: bool = Field(..., alias="isShared")
+    is_product: Optional[bool] = Field(None, alias="isProduct")
+    title: str = Field(..., alias="title")
+    lang_env: Optional[str] = Field(None, alias="langEnv")
+    has_cover: bool = Field(..., alias="hasCover")
+    type: Optional[int] = Field(None, alias="type")
+    viewed_num: int = Field(..., alias="viewedNum")
+    root_folder_id: str = Field(..., alias="rootFolderId")
+    content_updated_at: Optional[Union[datetime, MojiDate]] = Field(
+        None, alias="contentUpdatedAt"
+    )
+    items_num: int = Field(..., alias="itemsNum")
+    total_words_num: int = Field(..., alias="totalWordsNum")
+    words_num: int = Field(..., alias="wordsNum")
+    category: Optional[List[str]] = Field(None, alias="category")
+    img_ver: Optional[int] = Field(None, alias="imgVer")
+    cover_path: Optional[str] = Field(None, alias="coverPath")
+    attachments: Optional[List[Any]] = Field(None, alias="attachments")
+    brief: Optional[str] = Field(None, alias="brief")
+    brief_rich: Optional[str] = Field(None, alias="brief_rich")
+    price_mo: Optional[int] = Field(None, alias="price_mo")
+    version: int = Field(..., alias="version")
     id2: str = Field(..., alias="id")
-    objectId: str
-    createdAt: Optional[Union[datetime, MojiDate]] = None
-    updatedAt: Optional[Union[datetime, MojiDate]] = None
-    tags: Optional[List[str]] = None
-    followedNum: Optional[int] = None
-    vTag: Optional[str] = None
-    sortType: Optional[int] = None
-    commentedNum: Optional[int] = None
-    sampleId: Optional[str] = None
-    baseSortType: Optional[int] = None
+    object_id: str = Field(..., alias="objectId")
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    tags: Optional[List[str]] = Field(None, alias="tags")
+    followed_num: Optional[int] = Field(None, alias="followedNum")
+    v_tag: Optional[str] = Field(None, alias="vTag")
+    sort_type: Optional[int] = Field(None, alias="sortType")
+    commented_num: Optional[int] = Field(None, alias="commentedNum")
+    sample_id: Optional[str] = Field(None, alias="sampleId")
+    base_sort_type: Optional[int] = Field(None, alias="baseSortType")
 
 
 class FetchSharedFoldersWithTypeResult(BaseModel):
@@ -225,57 +190,32 @@ class FetchSharedFoldersWithTypeResponse(BaseModel):
 
 
 class OfficialFolderSchema(BaseModel):
-    """
-    _id: required
-    createdBy: required
-    updatedBy: required
-    isTrash: required
-    isShared: required
-    isProduct: required
-    title: required
-    viewedNum: required
-    brief: required
-    itemsNum: required
-    followedNum: required
-    contentUpdatedAt: required
-    hasCover: required
-    vTag: required
-    commentedNum: required
-    wordsNum: required
-    rootFolderId: required
-    totalWordsNum: required
-    id: required
-    objectId: required
-    createdAt: required
-    updatedAt: required
-    category: optional
-    version: optional
-    """
-
     id: str = Field(..., alias="_id")
-    createdBy: str
-    updatedBy: str
-    isTrash: bool
-    isShared: bool
-    isProduct: bool
-    title: str
-    viewedNum: int
-    brief: str
-    itemsNum: int
-    followedNum: int
-    contentUpdatedAt: Optional[Union[datetime, MojiDate]] = None
-    hasCover: bool
-    vTag: str
-    commentedNum: int
-    wordsNum: int
-    rootFolderId: str
-    totalWordsNum: int
+    created_by: str = Field(..., alias="createdBy")
+    updated_by: str = Field(..., alias="updatedBy")
+    is_trash: bool = Field(..., alias="isTrash")
+    is_shared: bool = Field(..., alias="isShared")
+    is_product: bool = Field(..., alias="isProduct")
+    title: str = Field(..., alias="title")
+    viewed_num: int = Field(..., alias="viewedNum")
+    brief: str = Field(..., alias="brief")
+    items_num: int = Field(..., alias="itemsNum")
+    followed_num: int = Field(..., alias="followedNum")
+    content_updated_at: Optional[Union[datetime, MojiDate]] = Field(
+        None, alias="contentUpdatedAt"
+    )
+    has_cover: bool = Field(..., alias="hasCover")
+    v_tag: str = Field(..., alias="vTag")
+    commented_num: int = Field(..., alias="commentedNum")
+    words_num: int = Field(..., alias="wordsNum")
+    root_folder_id: str = Field(..., alias="rootFolderId")
+    total_words_num: int = Field(..., alias="totalWordsNum")
     id2: str = Field(..., alias="id")
-    objectId: str
-    createdAt: Optional[Union[datetime, MojiDate]] = None
-    updatedAt: Optional[Union[datetime, MojiDate]] = None
-    category: Optional[List[str]] = None
-    version: Optional[int] = None
+    object_id: str = Field(..., alias="objectId")
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    category: Optional[List[str]] = Field(None, alias="category")
+    version: Optional[int] = Field(None, alias="version")
 
 
 class FetchOfficialFoldersResult(BaseModel):

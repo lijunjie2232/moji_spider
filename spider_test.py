@@ -17,6 +17,7 @@ async def init():
 run_async(init())
 
 from moji_spider import schemas
+from moji_spider import models
 from moji_spider.configs import __HEADERS__
 from moji_spider.routes import __ROUTES__
 from moji_spider.models import (
@@ -24,12 +25,8 @@ from moji_spider.models import (
     CollectionTarget as CollectionTargetModel,
     ContentTarget as ContentTargetModel,
     SentenceTarget as SentenceTargetModel,
-)
-from moji_spider.schemas import (
-    ContentResult as ContentResultSchema,
-    ContentTarget as ContentTargetSchema,
-    CollectionTarget as CollectionTargetSchema,
-    SentenceTarget as SentenceTargetSchema,
+    SharedFolder,
+    OfficialFolder,
 )
 
 SCHEMA_MODEL_MAP = {
@@ -39,7 +36,7 @@ SCHEMA_MODEL_MAP = {
 }
 
 
-def test_folder_by_type():
+async def test_folder_by_type():
     # test FOLDER_BY_TYPE
     with httpx.Client() as client:
         # test share folder
@@ -54,6 +51,11 @@ def test_folder_by_type():
             response.json(),
             by_alias=True,
         )
+        for item in object.result.result:
+            share_folder, is_created = await SharedFolder.get_or_create(
+                **item.model_dump(),
+            )
+
         print(object)
 
         # test official folder
@@ -68,6 +70,11 @@ def test_folder_by_type():
             response.json(),
             by_alias=True,
         )
+        for item in object.result.result:
+            share_folder, is_created = await OfficialFolder.get_or_create(
+                **item.model_dump(),
+            )
+
         print(object)
 
 
@@ -86,6 +93,7 @@ async def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
+        size = object.result.size
         for item in tqdm(object.result.result):
             target_cls, target_col = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
             # target = target_cls(**item.target.model_dump())
@@ -115,9 +123,21 @@ async def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
-        # for item in object.result.result:
-        #     pass
-        print(object)
+        for item in tqdm(object.result.result):
+            target_cls, target_col = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
+            # target = target_cls(**item.target.model_dump())
+            # run_async(target.save())
+            target, created = await target_cls.get_or_create(
+                **item.target.model_dump(),
+            )
+            # model = ContentResultModel(**item.model_dump())
+            model, created = await ContentResultModel.get_or_create(
+                **item.model_dump(exclude={"target"}),
+            )
+            print(f"model created: {created}")
+            await getattr(model, target_col).add(target)
+            pass
+        # print(object)
 
     # test official folder
     # 0EhuEs7G6E
@@ -133,8 +153,20 @@ async def test_folder_by_id():
             response.json(),
             by_alias=True,
         )
-        # for item in object.result.result:
-        #     pass
+        for item in tqdm(object.result.result):
+            target_cls, target_col = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
+            # target = target_cls(**item.target.model_dump())
+            # run_async(target.save())
+            target, created = await target_cls.get_or_create(
+                **item.target.model_dump(),
+            )
+            # model = ContentResultModel(**item.model_dump())
+            model, created = await ContentResultModel.get_or_create(
+                **item.model_dump(exclude={"target"}),
+            )
+            print(f"model created: {created}")
+            await getattr(model, target_col).add(target)
+            pass
 
         print(object)
 
@@ -163,7 +195,7 @@ if __name__ == "__main__":
     # tt = TimeTest.model_validate(data)
     # print(tt)
 
-    # test_folder_by_type()
-    run_async(test_folder_by_id())
+    # run_async(test_folder_by_type())
+    # run_async(test_folder_by_id())
 
     exit(0)

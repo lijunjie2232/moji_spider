@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import List, Optional, Reversible, Union
 
-from tortoise import fields, Model
+from tortoise import Model, fields
 from tortoise.fields import (
     BooleanField,
     CharField,
@@ -11,9 +11,114 @@ from tortoise.fields import (
     IntField,
     JSONField,
     ManyToManyField,
-    TextField,
     ManyToManyRelation,
+    TextField,
 )
+
+
+class SharedFolder(Model):
+    # Primary key using the id from the schema
+    id = CharField(max_length=255, pk=True)  # corresponds to _id field
+
+    # Basic fields
+    created_by = CharField(max_length=255)
+    updated_by = CharField(max_length=255)
+    is_trash = BooleanField()
+    is_shared = BooleanField()
+    is_product = BooleanField(null=True)
+    title = CharField(max_length=500)  # assuming reasonable max length
+    lang_env = CharField(max_length=50, null=True)
+    has_cover = BooleanField()
+    type = IntField(null=True)
+    viewed_num = IntField()
+    root_folder_id = CharField(max_length=255)
+
+    # Date/time fields
+    content_updated_at = DatetimeField(null=True)
+
+    # Numeric fields
+    items_num = IntField()
+    total_words_num = IntField()
+    words_num = IntField()
+
+    # Array/JSON fields
+    category = JSONField(null=True)  # List[str]
+    img_ver = IntField(null=True)
+    cover_path = CharField(max_length=500, null=True)
+    attachments = JSONField(null=True)  # List[Any]
+
+    # Text fields
+    brief = TextField(null=True)
+    brief_rich = TextField(null=True)
+    price_mo = IntField(null=True)
+    version = IntField()
+
+    # Additional ID field
+    id2 = CharField(max_length=255)  # corresponds to id field
+    object_id = CharField(max_length=255)
+
+    # Timestamps
+    created_at = DatetimeField(null=True)
+    updated_at = DatetimeField(null=True)
+
+    # Additional fields
+    tags = JSONField(null=True)  # List[str]
+    followed_num = IntField(null=True)
+    v_tag = CharField(max_length=100, null=True)
+    sort_type = IntField(null=True)
+    commented_num = IntField(null=True)
+    sample_id = CharField(max_length=255, null=True)
+    base_sort_type = IntField(null=True)
+
+    # Meta configuration
+    class Meta:
+        table = "shared_folders"  # specify table name
+
+
+class OfficialFolder(Model):
+    # Primary key using the id from the schema
+    id = CharField(max_length=255, pk=True)  # corresponds to _id field
+
+    # Basic fields
+    created_by = CharField(max_length=255)
+    updated_by = CharField(max_length=255)
+    is_trash = BooleanField()
+    is_shared = BooleanField()
+    is_product = BooleanField()
+    title = CharField(max_length=500)  # assuming reasonable max length
+    viewed_num = IntField()
+    brief = TextField()
+
+    # Numeric fields
+    items_num = IntField()
+    followed_num = IntField()
+
+    # Date/time fields
+    content_updated_at = DatetimeField(null=True)
+
+    # Boolean fields
+    has_cover = BooleanField()
+    v_tag = CharField(max_length=100)  # assuming vTag is a string
+    commented_num = IntField()
+    words_num = IntField()
+    root_folder_id = CharField(max_length=255)
+    total_words_num = IntField()
+
+    # Additional ID fields
+    id2 = CharField(max_length=255)  # corresponds to id field
+    object_id = CharField(max_length=255)
+
+    # Timestamps
+    created_at = DatetimeField(null=True)
+    updated_at = DatetimeField(null=True)
+
+    # Optional fields
+    category = JSONField(null=True)  # List[str]
+    version = IntField(null=True)
+
+    # Meta configuration
+    class Meta:
+        table = "official_folders"  # specify table name
 
 
 class ContentTarget(Model):
@@ -198,8 +303,9 @@ class ContentResult(Model):
 
 if __name__ == "__main__":
     # test connection
-    from moji_spider.configs import __TORTOISE_ORM__
     from tortoise import Tortoise, run_async
+
+    from moji_spider.configs import __TORTOISE_ORM__
 
     async def init():
         await Tortoise.init(
