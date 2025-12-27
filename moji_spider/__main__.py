@@ -1,12 +1,8 @@
-from tortoise import run_async
+"""
+Module allowing the package to be run with 'python -m moji_spider'
+"""
 
-from .handler import offical_folder_to_db, share_folder_to_db
-
-
-def main():
-    run_async(share_folder_to_db())
-    run_async(offical_folder_to_db())
-
+from .main import main
 
 if __name__ == "__main__":
     main()

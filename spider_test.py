@@ -1,9 +1,8 @@
-from calendar import c
 import httpx
-from tqdm import tqdm
 
 # test connection
 from tortoise import Tortoise, run_async
+from tqdm import tqdm
 
 
 async def init():
@@ -16,18 +15,15 @@ async def init():
 
 run_async(init())
 
-from moji_spider import schemas
-from moji_spider import models
+from moji_spider import models, schemas
 from moji_spider.configs import __HEADERS__
+from moji_spider.models import CollectionTarget as CollectionTargetModel
+from moji_spider.models import ContentResult as ContentResultModel
+from moji_spider.models import ContentTarget as ContentTargetModel
+from moji_spider.models import OfficialFolder
+from moji_spider.models import SentenceTarget as SentenceTargetModel
+from moji_spider.models import SharedFolder
 from moji_spider.routes import __ROUTES__
-from moji_spider.models import (
-    ContentResult as ContentResultModel,
-    CollectionTarget as CollectionTargetModel,
-    ContentTarget as ContentTargetModel,
-    SentenceTarget as SentenceTargetModel,
-    SharedFolder,
-    OfficialFolder,
-)
 
 SCHEMA_MODEL_MAP = {
     "ContentTarget": (ContentTargetModel, "content_targets"),
@@ -197,5 +193,6 @@ if __name__ == "__main__":
 
     # run_async(test_folder_by_type())
     # run_async(test_folder_by_id())
+    # run_async(test_content)
 
     exit(0)
