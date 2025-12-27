@@ -208,3 +208,6 @@ __marimo__/
 
 # config
 moji_spider/configs.py
+
+# debug
+debug.py
