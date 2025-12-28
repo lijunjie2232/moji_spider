@@ -334,9 +334,11 @@ class ContentResult(BaseModel):
     @classmethod
     def parse_target(cls, values):
         t = values.get("targetType")
-        data = values.get("target")
+        data = values.get("target", None)
 
-        if t == 1000:
+        if data is None:
+            values["target"] = IgnoredTarget.model_validate({}, by_alias=True)
+        elif t == 1000:
             values["target"] = CollectionTarget.model_validate(data, by_alias=True)
         elif t in [102, 104]:
             values["target"] = ContentTarget.model_validate(data, by_alias=True)
