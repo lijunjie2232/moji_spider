@@ -36,12 +36,13 @@ TARGET_TYPE_MAP = {
 }
 
 TASK_QUEUE = Queue()
-ITEM_QUEUE = Queue()
+ITEM_QUEUE = Queue(maxsize=200)
 
 import asyncio
 from collections import defaultdict
-from tortoise.exceptions import IntegrityError, DoesNotExist
+
 from loguru import logger
+from tortoise.exceptions import DoesNotExist, IntegrityError
 
 # Global lock dictionary to prevent concurrent operations on same object
 _target_locks = defaultdict(asyncio.Lock)
@@ -256,8 +257,11 @@ async def fetch_item_by_id(id: str):
 
             logger.success(f"Successfully fetched all pages for ID: {id}")
     except Exception as e:
+        import traceback
+
+        traceback.print_exc()
         logger.error(f"Error in fetch_item_by_id for {id}: {e}")
-        raise
+        raise e
 
 
 async def add_item_to_queue(items: list):
@@ -314,41 +318,50 @@ _ITEM_COMPLETE = True
 
 async def TASK_EXECUTOR():
     logger.info("TASK_EXECUTOR started")
-    try:
-        while _RUNNING:
+    while _RUNNING:
+        item = None
+        try:
             if not TASK_QUEUE.empty():
                 _TASK_COMPLETE = False
                 logger.debug("Getting task from TASK queue")
                 item = await TASK_QUEUE.get()
                 logger.info(f"Processing task: {item}")
-                await fetch_item_by_id(item.object_id)
-                await asyncio.sleep(1)
+                await fetch_item_by_id(getattr(item, "target_id", item.object_id))
             else:
-                _TASK_COMPLETE = True
                 await asyncio.sleep(1)
-        logger.info("TASK_EXECUTOR finished")
-    except Exception as e:
-        logger.error(f"Error in TASK_EXECUTOR: {e}")
-        raise
+        except Exception as e:
+            logger.error(f"Error in TASK_EXECUTOR: {e}")
+            if item != None:
+                await TASK_QUEUE.put(item)
+        finally:
+            await asyncio.sleep(0.5)
+    logger.info("TASK_EXECUTOR finished")
+    _TASK_COMPLETE = True
 
 
 async def ITEM_EXECUTOR():
     logger.info("ITEM_EXECUTOR started")
-    try:
-        while _RUNNING:
+
+    while _RUNNING:
+        try:
             if not ITEM_QUEUE.empty():
                 _ITEM_COMPLETE = False
                 logger.debug("Getting item from ITEM queue")
                 item = await ITEM_QUEUE.get()
                 logger.debug(f"Processing item: {item}")
                 await item_handler(item)
+                # __ITEM_EXCUTOR_POOL__.apply_async(
+                #     asyncio.run, args=(item_handler, item)
+                # )
             else:
-                _ITEM_COMPLETE = True
-                await asyncio.sleep(1)
-        logger.info("ITEM_EXECUTOR finished")
-    except Exception as e:
-        logger.error(f"Error in ITEM_EXECUTOR: {e}")
-        raise
+                await asyncio.sleep(2)
+        except Exception as e:
+            logger.error(f"Error in ITEM_EXECUTOR: {e}")
+            raise e
+        # finally:
+        # await asyncio.sleep()
+    logger.info("ITEM_EXECUTOR finished")
+    _ITEM_COMPLETE = True
 
 
 async def EXECUTOR():
@@ -362,8 +375,8 @@ async def EXECUTOR():
 
     logger.info("EXECUTOR started")
     try:
-        # await query_shared_folders()
         await query_official_folders()
+        await query_shared_folders()
 
         while not _ITEM_COMPLETE or not _TASK_COMPLETE:
             await _wait()
