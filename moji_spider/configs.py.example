@@ -24,3 +24,9 @@ __HEADERS__ = {
 
 # configure tortoise-orm here (omitted for brevity)
 __SQL_ADDRESS__ = "mysql://moji:moji@127.0.0.1:13306/moji_test"
+
+# httpx config
+__HTTPX_CONFIG__ = {
+    "timeout": 10.0,
+    "proxy": "socks5://127.0.0.1:10808",
+}
