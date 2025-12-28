@@ -3,15 +3,16 @@ import logging
 from loguru import logger
 from tortoise import Tortoise, run_async
 
-from .configs import __SQL_ADDRESS__
+from .configs import __SQL_ADDRESS__, __SQL_CONFIG__
 
 
 async def init():
     logger.info(f"Initializing database connection to: {__SQL_ADDRESS__}")
     try:
         await Tortoise.init(
-            db_url=__SQL_ADDRESS__,
-            modules={"models": ["moji_spider.models"]},
+            # db_url=__SQL_ADDRESS__,
+            # modules={"models": ["moji_spider.models"]},
+            config=__SQL_CONFIG__,
         )
         logger.success("Tortoise ORM initialized successfully")
 

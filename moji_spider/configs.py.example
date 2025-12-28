@@ -23,7 +23,31 @@ __HEADERS__ = {
 }
 
 # configure tortoise-orm here (omitted for brevity)
-__SQL_ADDRESS__ = "mysql://moji:moji@127.0.0.1:13306/moji_test"
+__SQL_ADDRESS__ = "mysql://moji:moji@127.0.0.1:13306/moji"
+
+
+__SQL_CONFIG__ = {
+    "connections": {
+        "default": {
+            "engine": "tortoise.backends.mysql",  # if using PostgreSQL
+            "credentials": {
+                "host": "127.0.0.1",
+                "port": 3306,
+                "user": "moji",
+                "password": "moji",
+                "database": "moji",
+                "minsize": 5,  # Increase connection pool
+                "maxsize": 20,  # Increase connection pool
+            },
+        }
+    },
+    "apps": {
+        "models": {
+            "models": ["moji_spider.models"],
+            "default_connection": "default",
+        },
+    },
+}
 
 # httpx config
 __HTTPX_CONFIG__ = {
