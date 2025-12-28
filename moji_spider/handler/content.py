@@ -38,27 +38,109 @@ TARGET_TYPE_MAP = {
 TASK_QUEUE = Queue()
 ITEM_QUEUE = Queue()
 
+import asyncio
+from collections import defaultdict
+from tortoise.exceptions import IntegrityError, DoesNotExist
+from loguru import logger
 
+# Global lock dictionary to prevent concurrent operations on same object
+_target_locks = defaultdict(asyncio.Lock)
+
+
+async def safe_get_or_create(model_cls, **kwargs):
+    """
+    A thread-safe get_or_create function that handles race conditions in async environment
+    """
+    # Create a unique key for locking based on model and primary key fields
+    # Assuming object_id is the primary key field, adjust as needed
+    pk_value = (
+        kwargs.get("object_id")
+        or kwargs.get("id")
+        or str(hash(str(sorted(kwargs.items()))))
+    )
+    lock_key = f"{model_cls.__name__}:{pk_value}"
+
+    async with _target_locks[lock_key]:
+        try:
+            # First, try to get an existing record
+            try:
+                instance = await model_cls.get(
+                    **{
+                        k: v
+                        for k, v in kwargs.items()
+                        if k in ["object_id", "id"] or hasattr(model_cls, k)
+                    }
+                )
+                return instance, False  # (instance, created=False)
+            except DoesNotExist:
+                # Record doesn't exist, so we'll try to create it
+                try:
+                    instance = await model_cls.create(**kwargs)
+                    return instance, True  # (instance, created=True)
+                except IntegrityError:
+                    # Handle case where another coroutine created the record between our get and create
+                    # Retry the get operation
+                    instance = await model_cls.get(
+                        **{
+                            k: v
+                            for k, v in kwargs.items()
+                            if k in ["object_id", "id"] or hasattr(model_cls, k)
+                        }
+                    )
+                    return instance, False  # (instance, created=False)
+
+        except IntegrityError as e:
+            # Additional handling for any other integrity errors
+            logger.warning(
+                f"Integrity error in get_or_create for {model_cls.__name__} with {kwargs}: {e}"
+            )
+            # Try to get the existing record
+            try:
+                instance = await model_cls.get(
+                    **{
+                        k: v
+                        for k, v in kwargs.items()
+                        if k in ["object_id", "id"] or hasattr(model_cls, k)
+                    }
+                )
+                return instance, False
+            except DoesNotExist:
+                raise IntegrityError(
+                    f"Failed to get or create {model_cls.__name__} with {kwargs}: {e}"
+                )
+        except Exception as e:
+            logger.error(
+                f"Unexpected error in safe_get_or_create for {model_cls.__name__} with {kwargs}: {e}"
+            )
+            raise
+
+
+# Updated item_handler function using the safe_get_or_create
 async def item_handler(item):
     logger.debug(f"Handling item: {item}")
     try:
-        target_cls, junction_cls = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
-        if target_cls == None:
-            logger.warning(f"Skipping item: {item}")
-            return
-        target, created = await target_cls.get_or_create(
-            **item.target.model_dump(),
-        )
-        logger.debug(f"Created/Retrieved target: {target}, created: {created}")
-
-        model, created = await getattr(models, "ContentResult").get_or_create(
+        model, created = await safe_get_or_create(
+            getattr(models, "ContentResult"),
             **item.model_dump(exclude={"target"}),
         )
         logger.debug(
             f"Created/Retrieved content result model: {model}, created: {created}"
         )
+        target_cls, junction_cls = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
+        if target_cls == None:
+            logger.warning(f"Skipping item: {item}")
+            model.is_cancelled = True
+            await model.save()
+            return
 
-        junction, created = await junction_cls.get_or_create(
+        target, created = await safe_get_or_create(
+            target_cls,
+            **item.target.model_dump(),
+        )
+        logger.debug(f"Created/Retrieved target: {target}, created: {created}")
+
+        junction, created = await safe_get_or_create(
+            junction_cls,
             content_result=model,
             target=target,
         )
@@ -104,7 +186,7 @@ async def fetch_item_by_id(id: str):
             )
             logger.debug(f"Response status for {fetch_id}: {response.status_code}")
             response_json = response.json()
-            response_json = await pre_process_response(response_json)
+            # response_json = await pre_process_response(response_json)
 
             object = getattr(
                 schemas, "FetchContentWithRelativesResponse"
