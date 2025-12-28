@@ -328,7 +328,7 @@ class ContentResult(BaseModel):
     object_id: str = Field(..., alias="objectId")
     target: Optional[
         Union[ContentTarget, CollectionTarget, SentenceTarget, IgnoredTarget]
-    ]
+    ] = Field(None, alias="target")
 
     @model_validator(mode="before")
     @classmethod
@@ -342,7 +342,7 @@ class ContentResult(BaseModel):
             values["target"] = ContentTarget.model_validate(data, by_alias=True)
         elif t == 103:
             values["target"] = SentenceTarget.model_validate(data, by_alias=True)
-        elif t == 431:
+        elif t == 310:
             values["target"] = IgnoredTarget.model_validate(data, by_alias=True)
         else:
             raise ValueError("Invalid targetType")
@@ -351,7 +351,6 @@ class ContentResult(BaseModel):
 
 
 class FetchContentWithRelativesResult(BaseModel):
-    result: List[ContentResult]
     info1: Optional[list[dict]] = Field(None, alias="1")
     info411: Optional[list[dict]] = Field(None, alias="411")
     info1000: Optional[list[dict]] = Field(None, alias="1000")
@@ -361,6 +360,7 @@ class FetchContentWithRelativesResult(BaseModel):
     size: int
     totalPage: int
     code: int
+    result: List[ContentResult]
 
 
 class FetchContentWithRelativesResponse(BaseModel):
