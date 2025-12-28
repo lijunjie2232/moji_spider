@@ -3,7 +3,7 @@ import httpx
 from loguru import logger
 
 from .. import schemas
-from ..configs import __HEADERS__
+from ..configs import __HEADERS__, __HTTPX_CONFIG__
 from ..models import OfficialFolder, SharedFolder
 from ..routes import __ROUTES__
 
@@ -12,7 +12,7 @@ async def share_folder_to_db():
     """
     get shared folder (type: [4|6])
     """
-    with httpx.Client() as client:
+    with httpx.Client(**__HTTPX_CONFIG__) as client:
         for folder_type in [4, 6]:
             response = client.post(
                 __ROUTES__.get("FOLDER_BY_TYPE", ""),
@@ -41,7 +41,7 @@ async def share_folder_to_db():
 
 
 async def offical_folder_to_db():
-    with httpx.Client() as client:
+    with httpx.Client(**__HTTPX_CONFIG__) as client:
         response = client.post(
             __ROUTES__.get("FOLDER_BY_TYPE", ""),
             json=getattr(schemas, "FOLDER_BY_TYPE")(type=1).model_dump(by_alias=True),
