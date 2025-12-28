@@ -4,31 +4,28 @@ import httpx
 from tortoise import Tortoise, run_async
 from tqdm import tqdm
 
-
-async def init():
-    await Tortoise.init(
-        db_url="mysql://moji:moji@127.0.0.1:13306/moji_test",
-        modules={"models": ["moji_spider.models"]},
-    )
-    await Tortoise.generate_schemas()
-
-
-run_async(init())
-
 from moji_spider import models, schemas
 from moji_spider.configs import __HEADERS__
-from moji_spider.models import CollectionTarget as CollectionTargetModel
 from moji_spider.models import ContentResult as ContentResultModel
-from moji_spider.models import ContentTarget as ContentTargetModel
-from moji_spider.models import OfficialFolder
-from moji_spider.models import SentenceTarget as SentenceTargetModel
-from moji_spider.models import SharedFolder
+from moji_spider.models import OfficialFolder, SharedFolder
 from moji_spider.routes import __ROUTES__
 
+# async def init():
+#     await Tortoise.init(
+#         db_url="mysql://moji:moji@127.0.0.1:13306/moji_test",
+#         modules={"models": ["moji_spider.models"]},
+#     )
+#     await Tortoise.generate_schemas()
+
+
+# run_async(init())
+
+
 SCHEMA_MODEL_MAP = {
-    "ContentTarget": (ContentTargetModel, "content_targets"),
-    "CollectionTarget": (CollectionTargetModel, "collection_targets"),
-    "SentenceTarget": (SentenceTargetModel, "sentence_targets"),
+    "IgnoredTarget": (None, None),
+    "ContentTarget": (models.ContentTarget, models.ContentResultContentTarget),
+    "CollectionTarget": (models.CollectionTarget, models.ContentResultCollectionTarget),
+    "SentenceTarget": (models.SentenceTarget, models.ContentResultSentenceTarget),
 }
 
 
@@ -80,7 +77,7 @@ async def test_folder_by_id():
     with httpx.Client() as client:
         response = client.post(
             __ROUTES__.get("FOLDER_BY_ID", ""),
-            json=getattr(schemas, "FOLDER_BY_ID")(fid="gjdWQCjLGX").model_dump(
+            json=getattr(schemas, "FOLDER_BY_ID")(fid="TB1PejsD4r").model_dump(
                 by_alias=True
             ),
             headers=__HEADERS__,
@@ -94,17 +91,22 @@ async def test_folder_by_id():
             target_cls, target_col = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
             # target = target_cls(**item.target.model_dump())
             # run_async(target.save())
-            target, created = await target_cls.get_or_create(
-                **item.target.model_dump(),
-            )
-            # model = ContentResultModel(**item.model_dump())
             model, created = await ContentResultModel.get_or_create(
                 **item.model_dump(exclude={"target"}),
             )
-            print(f"model created: {created}")
-            await getattr(model, target_col).add(target)
-            pass
-        # print(object)
+            target_cls, junction_cls = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
+            if not target_cls:
+                model.is_cancelled = True
+                await model.save()
+                continue
+            target, created = await target_cls.get_or_create(
+                **item.target.model_dump(),
+            )
+            junction, created = await junction_cls.get_or_create(
+                content_result=model,
+                target=target,
+            )
+        print(object)
 
     # q6ip0foN4s
     with httpx.Client() as client:
@@ -192,7 +194,7 @@ if __name__ == "__main__":
     # print(tt)
 
     # run_async(test_folder_by_type())
-    # run_async(test_folder_by_id())
+    run_async(test_folder_by_id())
     # run_async(test_content)
 
     exit(0)

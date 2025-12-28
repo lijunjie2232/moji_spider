@@ -241,6 +241,7 @@ class ContentResult(Model):
     app_id = CharField(max_length=255, null=True)
     version = IntField(null=True)
     object_id = CharField(max_length=255)
+    is_cancelled = BooleanField(default=False)
 
     # Many-to-many relationships to targets
     content_targets = ManyToManyField(
