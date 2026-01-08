@@ -114,10 +114,8 @@ async def item_handler(fetch_result):
                 ]
                 id_filter = {}
 
-                if (
-                    isinstance(item.target, schemas.IgnoredTarget)
-                    and item.target.data == None
-                ):
+                if isinstance(item.target, schemas.IgnoredTarget):
+                    # if item.target.data == None:
                     logger.warning(f"Skipping item: {item}")
                     model.is_cancelled = True
                     await model.save()
@@ -131,8 +129,7 @@ async def item_handler(fetch_result):
                         for k, v in item.target.model_dump().items()
                         if hasattr(target_cls(), k)
                     },
-                    # **id_filter,
-                    object_id=item.target.object_id,
+                    **id_filter,
                 )
                 logger.debug(
                     f"Created/Retrieved target model: {target}, created: {created}"
