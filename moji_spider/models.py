@@ -23,8 +23,8 @@ class SharedFolder(Model):
     id = CharField(max_length=255, pk=True)  # corresponds to _id field
 
     # Basic fields
-    created_by = CharField(max_length=255)
-    updated_by = CharField(max_length=255)
+    created_by = CharField(max_length=255, null=True)
+    updated_by = CharField(max_length=255, null=True)
     is_trash = BooleanField()
     is_shared = BooleanField()
     is_product = BooleanField(null=True)
@@ -36,7 +36,7 @@ class SharedFolder(Model):
     root_folder_id = CharField(max_length=255)
 
     # Date/time fields
-    content_updated_at = DatetimeField(null=True)
+    content_updated_at = DatetimeField(null=True, auto_now=True)
 
     # Numeric fields
     items_num = IntField()
@@ -60,8 +60,8 @@ class SharedFolder(Model):
     object_id = CharField(max_length=255)
 
     # Timestamps
-    created_at = DatetimeField(null=True)
-    updated_at = DatetimeField(null=True)
+    created_at = DatetimeField(null=True, auto_now_add=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
 
     # Additional fields
     tags = JSONField(null=True)  # List[str]
@@ -82,8 +82,8 @@ class OfficialFolder(Model):
     id = CharField(max_length=255, pk=True)  # corresponds to _id field
 
     # Basic fields
-    created_by = CharField(max_length=255)
-    updated_by = CharField(max_length=255)
+    created_by = CharField(max_length=255, null=True)
+    updated_by = CharField(max_length=255, null=True)
     is_trash = BooleanField()
     is_shared = BooleanField()
     is_product = BooleanField()
@@ -96,7 +96,7 @@ class OfficialFolder(Model):
     followed_num = IntField()
 
     # Date/time fields
-    content_updated_at = DatetimeField(null=True)
+    content_updated_at = DatetimeField(null=True, auto_now=True)
 
     # Boolean fields
     has_cover = BooleanField()
@@ -111,8 +111,8 @@ class OfficialFolder(Model):
     object_id = CharField(max_length=255)
 
     # Timestamps
-    created_at = DatetimeField(null=True)
-    updated_at = DatetimeField(null=True)
+    created_at = DatetimeField(null=True, auto_now_add=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
 
     # Optional fields
     category = JSONField(null=True)  # List[str]
@@ -137,7 +137,7 @@ class ContentTarget(Model):
     out_shared_num = IntField(null=True)
     is_free = BooleanField(null=True)
     is_checked = BooleanField(null=True)
-    content_updated_at = DatetimeField(null=True)
+    content_updated_at = DatetimeField(null=True, auto_now=True)
     updated_by = CharField(max_length=255, null=True)
     v_tag = IntField(null=True)
     quality = IntField(null=True)
@@ -152,8 +152,8 @@ class ContentTarget(Model):
     romaji_hepburn_cn = CharField(max_length=255, null=True)
     romaji_nippon = CharField(max_length=255, null=True)
     romaji_nippon_cn = CharField(max_length=255, null=True)
-    created_at = DatetimeField(null=True)
-    updated_at = DatetimeField(null=True)
+    created_at = DatetimeField(null=True, auto_now_add=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
     object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
@@ -168,14 +168,14 @@ class CollectionTarget(Model):
     Model representing a collection target with metadata about collections.
     """
 
-    created_at = DatetimeField(null=True)
-    updated_at = DatetimeField(null=True)
+    created_at = DatetimeField(null=True, auto_now_add=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
     created_by = CharField(max_length=255, null=True)
     updated_by = CharField(max_length=255, null=True)
     is_shared = BooleanField(null=True)
     is_product = BooleanField(null=True)
     title = TextField()
-    content_updated_at = DatetimeField(null=True)
+    content_updated_at = DatetimeField(null=True, auto_now=True)
     viewed_num = IntField(null=True)
     items_num = IntField(null=True)
     followed_num = IntField(null=True)
@@ -200,18 +200,18 @@ class SentenceTarget(Model):
     Model representing a sentence target with word and sentence details.
     """
 
-    word_id = CharField(max_length=255)
+    word_id = CharField(max_length=255, null=True)
     subdetails_id = CharField(max_length=255, null=True)
     title = TextField()
     lang = CharField(max_length=50, null=True)
     index = IntField(null=True)
     is_shared = BooleanField(null=True)
     status = CharField(max_length=50, null=True)
-    created_at = DatetimeField(null=True)
+    created_at = DatetimeField(null=True, auto_now_add=True)
     created_by = CharField(max_length=255, null=True)
-    updated_at = DatetimeField(null=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
     updated_by = CharField(max_length=255, null=True)
-    rela_id = CharField(max_length=255)
+    rela_id = CharField(max_length=255, null=True)
     trans = TextField(null=True)
     object_id = CharField(max_length=255, pk=True)
 
@@ -248,8 +248,8 @@ class TranslateTarget(Model):
     object_id: str = Field(..., alias="objectId")
     """
 
-    created_at = DatetimeField(null=True)
-    updated_at = DatetimeField(null=True)
+    created_at = DatetimeField(null=True, auto_now_add=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
     src_lang = CharField(null=True, max_length=10)
     title = TextField(null=True)
     tar_lang = CharField(null=True, max_length=10)
@@ -271,13 +271,13 @@ class ContentResult(Model):
     """
 
     id = CharField(max_length=255, pk=True)
-    created_at = DatetimeField(null=True)
-    updated_at = DatetimeField(null=True)
-    created_by = CharField(max_length=255)
+    created_at = DatetimeField(null=True, auto_now_add=True)
+    updated_at = DatetimeField(null=True, auto_now=True)
+    created_by = CharField(max_length=255, null=True)
     title = TextField()
     updated_by = CharField(max_length=255, null=True)
     target_type = IntField()  # 1000: collection; 102/104: word/grammar; 103: sentence
-    target_id = CharField(max_length=255)
+    target_id = CharField(max_length=255, null=True)
     parent_folder_id = CharField(max_length=255, null=True)
     root_folder_id = CharField(max_length=255, null=True)
     target_user_id = CharField(max_length=255, null=True)
