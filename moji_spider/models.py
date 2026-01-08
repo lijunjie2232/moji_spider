@@ -1,4 +1,5 @@
 # models.py
+from calendar import c
 from datetime import datetime
 from enum import unique
 from typing import List, Optional, Reversible, Union
@@ -206,12 +207,12 @@ class SentenceTarget(Model):
     index = IntField(null=True)
     is_shared = BooleanField(null=True)
     status = CharField(max_length=50, null=True)
-    created_by = CharField(max_length=255)
+    created_at = DatetimeField(null=True)
+    created_by = CharField(max_length=255, null=True)
     updated_at = DatetimeField(null=True)
     updated_by = CharField(max_length=255, null=True)
     rela_id = CharField(max_length=255)
     trans = TextField(null=True)
-    created_at = DatetimeField(null=True)
     object_id = CharField(max_length=255, pk=True)
 
     # Many-to-many relationship with ContentResult
@@ -219,6 +220,48 @@ class SentenceTarget(Model):
 
     class Meta:
         table = "sentence_target"
+
+
+class IgnoredTarget(Model):
+    id = IntField(pk=True, auto_increment=True)
+    data = JSONField(null=True)
+
+    content_results = ManyToManyRelation["ContentResult"]
+
+    class Meta:
+        table = "ignored_target"
+
+
+class TranslateTarget(Model):
+    """
+    pydantic defination:
+
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    src_lang: Optional[str] = Field(None, alias="srcLang")
+    title: Optional[str] = Field(None, alias="title")
+    tar_lang: Optional[str] = Field(None, alias="tarLang")
+    trans: Optional[str] = Field(None, alias="trans")
+    tmp_id: Optional[str] = Field(None, alias="tmpId")
+    created_by: Optional[str] = Field(None, alias="createdBy")
+    updated_by: Optional[str] = Field(None, alias="updatedBy")
+    object_id: str = Field(..., alias="objectId")
+    """
+
+    created_at = DatetimeField(null=True)
+    updated_at = DatetimeField(null=True)
+    src_lang = CharField(null=True, max_length=10)
+    title = TextField(null=True)
+    tar_lang = CharField(null=True, max_length=10)
+    trans = TextField(null=True)
+    created_by = CharField(null=True, max_length=16)
+    updated_by = CharField(null=True, max_length=16)
+    object_id = CharField(unique=True, pk=True, max_length=16)
+
+    content_results = ManyToManyRelation["ContentResult"]
+
+    class Meta:
+        table = "translate_target"
 
 
 class ContentResult(Model):
@@ -262,9 +305,56 @@ class ContentResult(Model):
         through="contentresult_sentencetarget",
         on_delete=fields.CASCADE,
     )
+    translation_targets = ManyToManyField(
+        "models.TranslateTarget",
+        related_name="content_results",
+        through="contentresult_translationtarget",
+        on_delete=fields.CASCADE,
+    )
+    ignored_targets = ManyToManyField(
+        "models.IgnoredTarget",
+        related_name="content_results",
+        through="contentresult_ignoredtarget",
+        on_delete=fields.CASCADE,
+    )
+
+    fetch_result = ManyToManyRelation["FetchResult"]
 
     class Meta:
         table = "content_result"
+
+
+class FetchResult(Model):
+    """
+    Model for FetchResult
+
+    One FetchResult could have many ContentResult in result
+
+    pydantic defination:{
+        info1: Optional[list[dict]] = Field(None, alias="1")
+        info411: Optional[list[dict]] = Field(None, alias="411")
+        info1000: Optional[list[dict]] = Field(None, alias="1000")
+        fid: str
+        pageIndex: int
+        sortType: int
+        size: int
+        totalPage: int
+        code: int
+        result: List[ContentResult]
+    }
+    """
+
+    fid = CharField(pk=True, max_length=16)
+    size = IntField()
+    results = ManyToManyField(
+        "models.ContentResult",
+        related_name="fetch_result",
+        through="fetchresult_contentresult",
+        on_delete=fields.CASCADE,
+    )
+
+    class Meta:
+        table = "fetch_result"
 
 
 # Junction tables for many-to-many relationships
@@ -305,3 +395,41 @@ class ContentResultSentenceTarget(Model):
     class Meta:
         table = "contentresult_sentencetarget"
         unique_together = (("content_result", "target"),)
+
+
+class ContentResultIgnoredTarget(Model):
+    """
+    Junction table for many-to-many relationship between ContentResult and IgnoredTarget
+    """
+
+    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+    target = ForeignKeyField("models.IgnoredTarget", on_delete=fields.CASCADE)
+
+    class Meta:
+        table = "contentresult_ignoredtarget"
+        unique_together = (("content_result", "target"),)
+
+
+class ContentResultTranslationTarget(Model):
+    """
+    Junction table for many-to-many relationship between ContentResult and TranslateTarget
+    """
+
+    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+    target = ForeignKeyField("models.TranslateTarget", on_delete=fields.CASCADE)
+
+    class Meta:
+        table = "contentresult_translationtarget"
+        unique_together = (("content_result", "target"),)
+
+
+class FetchResultContentResult(Model):
+    """
+    Junction table for many-to-many relationship between FetchResult and ContentResult
+    """
+
+    fetch_result = ForeignKeyField("models.FetchResult", on_delete=fields.CASCADE)
+    content_result = ForeignKeyField("models.ContentResult", on_delete=fields.CASCADE)
+
+    class Meta:
+        table = "fetchresult_contentresult"
