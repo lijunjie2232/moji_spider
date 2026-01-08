@@ -291,6 +291,23 @@ class CollectionTarget(BaseModel):
 
 
 class SentenceTarget(BaseModel):
+    """
+    {
+        "wordId": "1989112052",
+        "subdetailsId": "126297",
+        "relaId": "97751",
+        "title": "涼しい顔",
+        "index": 0,
+        "lang": "ja",
+        "status": "audited",
+        "isShared": true,
+        "trans": "若无其事的样子；假装不知的表情；满不在乎的神色。（自分にも関係があるのに、なんの関係もないかのような顔をして済ましているさま。）",
+        "createdAt": "2023-07-20T10:21:00.609Z",
+        "updatedAt": "2023-07-20T10:21:00.609Z",
+        "objectId": "97751"
+    }
+    """
+
     word_id: str = Field(..., alias="wordId")
     subdetails_id: Optional[str] = Field(None, alias="subdetailsId")
     title: str
@@ -298,17 +315,46 @@ class SentenceTarget(BaseModel):
     index: Optional[int] = Field(None, alias="index")
     is_shared: Optional[bool] = Field(None, alias="isShared")
     status: Optional[str] = Field(None, alias="status")
-    created_by: str = Field(..., alias="createdBy")
+    created_by: Optional[str] = Field(None, alias="createdBy")
     updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
     updated_by: Optional[str] = Field(None, alias="updatedBy")
-    rela_id: str = Field(..., alias="relaId")
+    rela_id: Optional[str] = Field(None, alias="relaId")
     trans: Optional[str] = Field(None, alias="trans")
     created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
     object_id: str = Field(..., alias="objectId")
 
 
+class TranslateTarget(BaseModel):
+    """
+    {
+        "createdAt": "2024-05-26T13:12:25.014Z",
+        "updatedAt": "2024-05-26T13:12:25.014Z",
+        "srcLang": "ja",
+        "title": "万よりは近く、千程も遠い奇跡を要する望月の再会",
+        "tarLang": "zh-CN",
+        "trans": "远近千里的奇迹望月重逢",
+        "tmpId": "tmp_0EA856CC-0330-4F38-9FCA-A0C4607983FC",
+        "createdBy": "BBS1keLACn",
+        "updatedBy": "BBS1keLACn",
+        "objectId": "V0VaZI42HM"
+    }
+    target_type:310
+    """
+
+    created_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="createdAt")
+    updated_at: Optional[Union[datetime, MojiDate]] = Field(None, alias="updatedAt")
+    src_lang: Optional[str] = Field(None, alias="srcLang")
+    title: Optional[str] = Field(None, alias="title")
+    tar_lang: Optional[str] = Field(None, alias="tarLang")
+    trans: Optional[str] = Field(None, alias="trans")
+    tmp_id: Optional[str] = Field(None, alias="tmpId")
+    created_by: Optional[str] = Field(None, alias="createdBy")
+    updated_by: Optional[str] = Field(None, alias="updatedBy")
+    object_id: str = Field(..., alias="objectId")
+
+
 class IgnoredTarget(BaseModel):
-    pass
+    data: Optional[dict] = Field(None, alias="data")
 
 
 class ContentResult(BaseModel):
@@ -327,7 +373,13 @@ class ContentResult(BaseModel):
     id: str
     object_id: str = Field(..., alias="objectId")
     target: Optional[
-        Union[ContentTarget, CollectionTarget, SentenceTarget, IgnoredTarget]
+        Union[
+            ContentTarget,
+            CollectionTarget,
+            SentenceTarget,
+            TranslateTarget,
+            IgnoredTarget,
+        ]
     ] = Field(None, alias="target")
 
     @model_validator(mode="before")
@@ -345,9 +397,15 @@ class ContentResult(BaseModel):
         elif t == 103:
             values["target"] = SentenceTarget.model_validate(data, by_alias=True)
         elif t == 310:
-            values["target"] = IgnoredTarget.model_validate(data, by_alias=True)
+            values["target"] = TranslateTarget.model_validate(data, by_alias=True)
+        elif t in [431]:
+            values["target"] = IgnoredTarget(data=data)
         else:
-            raise ValueError("Invalid targetType")
+            # raise ValueError("Invalid targetType")
+            if isinstance(data, dict):
+                values["target"] = IgnoredTarget(data=data)
+            else:
+                values["target"] = IgnoredTarget(data={"data": data})
 
         return values
 
