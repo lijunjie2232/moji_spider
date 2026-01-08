@@ -171,11 +171,11 @@ async def fetch_item(id):
 async def fetch_item_by_id(id: str):
     logger.info(f"Fetching item by ID: {id}")
 
-    item = await fetch_item(id)
+    # item = await fetch_item(id)
 
-    if item:
-        logger.info(f"Item found: {item}")
-        return
+    # if item:
+    #     logger.info(f"Item found: {item}")
+    #     return
 
     async def _fetch(
         fetch_client: httpx.AsyncClient,
@@ -374,7 +374,7 @@ async def TASK_EXECUTOR(id):
             logger.error(
                 f"Feth item {getattr(item, 'target_id', getattr(item,'object_id'))} error: {e}"
             )
-            raise (e)
+            # raise (e)
             logger.error(f"Error in TASK_EXECUTOR: {e}")
             if item != None:
                 await TASK_QUEUE.put(item)
