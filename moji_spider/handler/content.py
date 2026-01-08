@@ -1,19 +1,51 @@
 import asyncio
 from asyncio import Queue
-
+import traceback
 import httpx
 from loguru import logger
+from tortoise.transactions import in_transaction
 
 from .. import models, schemas
 from ..configs import __HEADERS__, __HTTPX_CONFIG__
 from ..routes import __ROUTES__
 
+# SCHEMA_MODEL_MAP = {
+#     "IgnoredTarget": (models.IgnoredTarget, models.ContentResultIgnoredTarget),
+#     "ContentTarget": (models.ContentTarget, models.ContentResultContentTarget),
+#     "CollectionTarget": (models.CollectionTarget, models.ContentResultCollectionTarget),
+#     "SentenceTarget": (models.SentenceTarget, models.ContentResultSentenceTarget),
+#     "TranslateTarget": (models.TranslateTarget, models.ContentResultTranslationTarget),
+# }
+
 SCHEMA_MODEL_MAP = {
-    "IgnoredTarget": (None, None),
-    "ContentTarget": (models.ContentTarget, models.ContentResultContentTarget),
-    "CollectionTarget": (models.CollectionTarget, models.ContentResultCollectionTarget),
-    "SentenceTarget": (models.SentenceTarget, models.ContentResultSentenceTarget),
+    "IgnoredTarget": (
+        models.IgnoredTarget,
+        models.ContentResultIgnoredTarget,
+        "ignored_targets",
+    ),
+    "ContentTarget": (
+        models.ContentTarget,
+        models.ContentResultContentTarget,
+        "content_targets",
+    ),
+    "CollectionTarget": (
+        models.CollectionTarget,
+        models.ContentResultCollectionTarget,
+        "collection_targets",
+    ),
+    "SentenceTarget": (
+        models.SentenceTarget,
+        models.ContentResultSentenceTarget,
+        "sentence_targets",
+    ),
+    "TranslateTarget": (
+        models.TranslateTarget,
+        models.ContentResultTranslationTarget,
+        "translation_targets",
+    ),
 }
+
+data = {}
 
 """
 if t == 1000:
@@ -47,116 +79,77 @@ from tortoise.exceptions import DoesNotExist, IntegrityError
 # Global lock dictionary to prevent concurrent operations on same object
 _target_locks = defaultdict(asyncio.Lock)
 
-
-async def safe_get_or_create(model_cls, **kwargs):
-    """
-    A thread-safe get_or_create function that handles race conditions in async environment
-    """
-    # Create a unique key for locking based on model and primary key fields
-    # Assuming object_id is the primary key field, adjust as needed
-    pk_value = (
-        kwargs.get("object_id")
-        or kwargs.get("id")
-        or str(hash(str(sorted(kwargs.items()))))
-    )
-    lock_key = f"{model_cls.__name__}:{pk_value}"
-
-    async with _target_locks[lock_key]:
-        try:
-            # First, try to get an existing record
-            try:
-                instance = await model_cls.get(
-                    **{
-                        k: v
-                        for k, v in kwargs.items()
-                        if k in ["object_id", "id"] or hasattr(model_cls, k)
-                    }
-                )
-                return instance, False  # (instance, created=False)
-            except DoesNotExist:
-                # Record doesn't exist, so we'll try to create it
-                try:
-                    instance = await model_cls.create(**kwargs)
-                    return instance, True  # (instance, created=True)
-                except IntegrityError:
-                    # Handle case where another coroutine created the record between our get and create
-                    # Retry the get operation
-                    instance = await model_cls.get(
-                        **{
-                            k: v
-                            for k, v in kwargs.items()
-                            if k in ["object_id", "id"] or hasattr(model_cls, k)
-                        }
-                    )
-                    return instance, False  # (instance, created=False)
-
-        except IntegrityError as e:
-            # Additional handling for any other integrity errors
-            logger.warning(
-                f"Integrity error in get_or_create for {model_cls.__name__} with {kwargs}: {e}"
-            )
-            # Try to get the existing record
-            try:
-                instance = await model_cls.get(
-                    **{
-                        k: v
-                        for k, v in kwargs.items()
-                        if k in ["object_id", "id"] or hasattr(model_cls, k)
-                    }
-                )
-                return instance, False
-            except DoesNotExist:
-                raise IntegrityError(
-                    f"Failed to get or create {model_cls.__name__} with {kwargs}: {e}"
-                )
-        except Exception as e:
-            logger.error(
-                f"Unexpected error in safe_get_or_create for {model_cls.__name__} with {kwargs}: {e}"
-            )
-            raise
-
-
 # Updated item_handler function using the safe_get_or_create
-async def item_handler(item):
-    logger.debug(f"Handling item: {item}")
-    try:
-        model, created = await safe_get_or_create(
-            getattr(models, "ContentResult"),
-            **item.model_dump(exclude={"target"}),
+async def item_handler(fetch_result):
+    async with in_transaction():
+        logger.debug(f"Handling fetch result: {fetch_result}")
+        fetch_result_model, created = await models.FetchResult.get_or_create(
+            {k: v for k, v in fetch_result.model_dump(exclude={"result"}).items()},
+            fid=fetch_result.fid,
         )
-        logger.debug(
-            f"Created/Retrieved content result model: {model}, created: {created}"
-        )
-        target_cls, junction_cls = SCHEMA_MODEL_MAP[item.target.__class__.__name__]
-        if target_cls == None:
-            logger.warning(f"Skipping item: {item}")
-            model.is_cancelled = True
-            await model.save()
-            return
 
-        target, created = await safe_get_or_create(
-            target_cls,
-            **item.target.model_dump(),
-        )
-        logger.debug(f"Created/Retrieved target: {target}, created: {created}")
+    for item in fetch_result.result:
+        async with in_transaction():
+            logger.debug(f"Handling item: {item}")
+            try:
+                model, created = await models.ContentResult.get_or_create(
+                    {
+                        k: v
+                        for k, v in item.model_dump(exclude={"target"}).items()
+                        if hasattr(models.ContentResult(), k)
+                    },
+                    id=item.id,
+                )
+                logger.debug(
+                    f"Created/Retrieved content result model: {model}, created: {created}"
+                )
 
-        junction, created = await safe_get_or_create(
-            junction_cls,
-            content_result=model,
-            target=target,
-        )
-        logger.debug(f"Created/Retrieved junction: {junction}, created: {created}")
+                f_c_junc, created = await models.FetchResultContentResult.get_or_create(
+                    fetch_result=fetch_result_model, content_result=model
+                )
 
-        if isinstance(item.target, schemas.CollectionTarget):
-            await TASK_QUEUE.put(item)
-            logger.debug(
-                f"Added collection target to task queue: {item.target.object_id}"
-            )
+                target_cls, junction_cls, field_name = SCHEMA_MODEL_MAP[
+                    item.target.__class__.__name__
+                ]
+                if (
+                    isinstance(item.target, schemas.IgnoredTarget)
+                    and item.target.data == None
+                ):
+                    logger.warning(f"Skipping item: {item}")
+                    model.is_cancelled = True
+                    await model.save()
+                id = getattr(item.target, "object_id", None)
 
-        logger.success(f"Successfully handled item: {item.target.object_id}")
-    except Exception as e:
-        logger.error(f"Error handling item {item}: {e}")
-        raise
+                target, created = await target_cls.get_or_create(
+                    {
+                        k: v
+                        for k, v in item.target.model_dump().items()
+                        if hasattr(target_cls(), k)
+                    },
+                    **{"object_id": item.target.object_id},
+                )
+                logger.debug(
+                    f"Created/Retrieved target model: {target}, created: {created}"
+                )
+
+                junction, created = await junction_cls.get_or_create(model, target)
+                logger.debug(
+                    f"Created/Retrieved junction: {junction}, created: {created}"
+                )
+
+                if created and isinstance(item.target, schemas.CollectionTarget):
+                    await TASK_QUEUE.put(item)
+                    logger.debug(
+                        f"Added collection target to task queue: {item.target.object_id}"
+                    )
+
+                logger.success(
+                    f"Successfully handled item: {getattr(item.target, 'object_id', item.object_id)}"
+                )
+            except Exception as e:
+                traceback.print_exc()
+                logger.error(f"Error handling item {item}: {e}")
+                raise
 
 
 async def pre_process_response(response: dict):
@@ -166,36 +159,57 @@ async def pre_process_response(response: dict):
     return response
 
 
+async def fetch_item(id):
+    return await models.ContentResult.get_or_none(object_id=id)
+
+
 async def fetch_item_by_id(id: str):
     logger.info(f"Fetching item by ID: {id}")
+
+    item = await fetch_item(id)
+
+    if item:
+        logger.info(f"Item found: {item}")
+        return
 
     async def _fetch(
         fetch_client: httpx.AsyncClient,
         fetch_id: str,
         fetch_page_index: int,
+        retry=3,
     ):
         logger.debug(f"Fetching data for ID: {fetch_id}, page: {fetch_page_index}")
         try:
-            response = await fetch_client.post(
-                __ROUTES__.get("FOLDER_BY_ID", ""),
-                json=getattr(schemas, "FOLDER_BY_ID")(
-                    fid=fetch_id,
-                    count=count,
-                    page_index=fetch_page_index,
-                ).model_dump(by_alias=True),
-                headers=__HEADERS__,
-            )
-            logger.debug(f"Response status for {fetch_id}: {response.status_code}")
-            response_json = response.json()
-            # response_json = await pre_process_response(response_json)
+            while retry:
+                response = await fetch_client.post(
+                    __ROUTES__.get("FOLDER_BY_ID", ""),
+                    json=getattr(schemas, "FOLDER_BY_ID")(
+                        fid=fetch_id,
+                        count=count,
+                        page_index=fetch_page_index,
+                    ).model_dump(by_alias=True),
+                    headers=__HEADERS__,
+                )
+                logger.debug(f"Response status for {fetch_id}: {response.status_code}")
 
-            object = getattr(
-                schemas, "FetchContentWithRelativesResponse"
-            ).model_validate(
-                response_json,
-                by_alias=True,
+                if response.status_code != 200:
+                    retry -= 1
+                    await asyncio.sleep(1)
+                    continue
+                response_json = response.json()
+                # response_json = await pre_process_response(response_json)
+
+                object = getattr(
+                    schemas, "FetchContentWithRelativesResponse"
+                ).model_validate(
+                    response_json,
+                    by_alias=True,
+                )
+                return object
+            logger.error(f"Failed to fetch data for {fetch_id}")
+            raise Exception(
+                f"Failed to fetch data for ID {fetch_id} for response code {response.status_code}"
             )
-            return object
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error when fetching data for {fetch_id}: {e}")
             raise
@@ -215,7 +229,7 @@ async def fetch_item_by_id(id: str):
                 id,
                 page_index,
             )
-            await add_item_to_queue(object.result.result)
+            await add_item_to_queue(object.result)
             logger.debug(f"Added {len(object.result.result)} items to queue from {id}")
             return object
         except Exception as e:
@@ -264,16 +278,13 @@ async def fetch_item_by_id(id: str):
         raise e
 
 
-async def add_item_to_queue(items: list):
-    logger.debug(f"Adding {len(items)} items to queue")
+async def add_item_to_queue(fetch_result):
+    logger.debug(f"Adding {len(fetch_result.result)} items to queue")
     try:
-        for item in items:
-            if item.target == None:
-                logger.debug(f"the share of {item.title} has been cancelled, skip it")
-                continue
-            else:
-                await ITEM_QUEUE.put(item)
-        logger.success(f"Successfully added {len(items)} items to queue")
+        await ITEM_QUEUE.put(fetch_result)
+        logger.success(
+            f"Successfully added fetch item {fetch_result.fid} to queue with {len(fetch_result.result)} items"
+        )
     except Exception as e:
         logger.error(f"Error adding items to queue: {e}")
         raise
@@ -311,25 +322,54 @@ async def query_official_folders():
         raise
 
 
+async def query_collection_targets():
+    logger.info("Querying collection targets")
+    try:
+        collection_targets = await models.CollectionTarget.all()
+        logger.debug(f"Found {len(collection_targets)} collection targets")
+        for collection_target in collection_targets:
+            await TASK_QUEUE.put(collection_target)
+            logger.debug(
+                f"Added collection target to task queue: {collection_target.object_id}"
+            )
+        logger.success(
+            f"Successfully added {len(collection_targets)} collection targets to task queue"
+        )
+    except Exception as e:
+        logger.error(f"Error querying collection targets: {e}")
+        raise
+
+
 _RUNNING = True
 _TASK_COMPLETE = False
 _ITEM_COMPLETE = True
 
 
-async def TASK_EXECUTOR():
+async def TASK_EXECUTOR(id):
+    exec_id = id
+    await asyncio.sleep(int(id))
     logger.info("TASK_EXECUTOR started")
     while _RUNNING:
         item = None
         try:
             if not TASK_QUEUE.empty():
+                global _TASK_COMPLETE
                 _TASK_COMPLETE = False
-                logger.debug("Getting task from TASK queue")
+                logger.debug(
+                    f"Getting task from TASK queue, rest: {TASK_QUEUE.qsize()}"
+                )
                 item = await TASK_QUEUE.get()
                 logger.info(f"Processing task: {item}")
                 await fetch_item_by_id(getattr(item, "target_id", item.object_id))
             else:
                 await asyncio.sleep(1)
         except Exception as e:
+            traceback.print_exc()
+            print(item)
+            logger.error(
+                f"Feth item {getattr(item, 'target_id', getattr(item,'object_id'))} error: {e}"
+            )
+            raise (e)
             logger.error(f"Error in TASK_EXECUTOR: {e}")
             if item != None:
                 await TASK_QUEUE.put(item)
@@ -339,14 +379,19 @@ async def TASK_EXECUTOR():
     _TASK_COMPLETE = True
 
 
-async def ITEM_EXECUTOR():
+async def ITEM_EXECUTOR(id=0):
+    exec_id = id
+    await asyncio.sleep(int(id))
     logger.info("ITEM_EXECUTOR started")
 
     while _RUNNING:
         try:
             if not ITEM_QUEUE.empty():
+                global _ITEM_COMPLETE
                 _ITEM_COMPLETE = False
-                logger.debug("Getting item from ITEM queue")
+                logger.debug(
+                    f"Getting item from ITEM queue, rest: {ITEM_QUEUE.qsize()}"
+                )
                 item = await ITEM_QUEUE.get()
                 logger.debug(f"Processing item: {item}")
                 await item_handler(item)
@@ -377,6 +422,7 @@ async def EXECUTOR():
     try:
         await query_official_folders()
         await query_shared_folders()
+        # await query_collection_targets()
 
         while not _ITEM_COMPLETE or not _TASK_COMPLETE:
             await _wait()
