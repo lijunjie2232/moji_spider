@@ -79,6 +79,7 @@ from tortoise.exceptions import DoesNotExist, IntegrityError
 # Global lock dictionary to prevent concurrent operations on same object
 _target_locks = defaultdict(asyncio.Lock)
 
+
 # Updated item_handler function using the safe_get_or_create
 async def item_handler(fetch_result):
     async with in_transaction():
@@ -111,6 +112,8 @@ async def item_handler(fetch_result):
                 target_cls, junction_cls, field_name = SCHEMA_MODEL_MAP[
                     item.target.__class__.__name__
                 ]
+                id_filter = {}
+
                 if (
                     isinstance(item.target, schemas.IgnoredTarget)
                     and item.target.data == None
@@ -118,7 +121,9 @@ async def item_handler(fetch_result):
                     logger.warning(f"Skipping item: {item}")
                     model.is_cancelled = True
                     await model.save()
-                id = getattr(item.target, "object_id", None)
+                    continue
+                else:
+                    id_filter["object_id"] = item.target.object_id
 
                 target, created = await target_cls.get_or_create(
                     {
@@ -126,13 +131,16 @@ async def item_handler(fetch_result):
                         for k, v in item.target.model_dump().items()
                         if hasattr(target_cls(), k)
                     },
-                    **{"object_id": item.target.object_id},
+                    # **id_filter,
+                    object_id=item.target.object_id,
                 )
                 logger.debug(
                     f"Created/Retrieved target model: {target}, created: {created}"
                 )
 
-                junction, created = await junction_cls.get_or_create(model, target)
+                junction, created = await junction_cls.get_or_create(
+                    content_result=model, target=target
+                )
                 logger.debug(
                     f"Created/Retrieved junction: {junction}, created: {created}"
                 )
