@@ -223,7 +223,7 @@ class SentenceTarget(Model):
 
 
 class IgnoredTarget(Model):
-    id = IntField(pk=True, auto_increment=True)
+    object_id = IntField(pk=True, auto_increment=True)
     data = JSONField(null=True)
 
     content_results = ManyToManyRelation["ContentResult"]
